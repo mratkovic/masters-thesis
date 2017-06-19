@@ -1,6 +1,7 @@
 \documentclass[times, utf8, diplomski, english]{fer}
 \usepackage{booktabs}
-
+\usepackage{amsmath}
+\usepackage{nccmath}
 \begin{document}
 
 % TODO: Navedite broj rada.
@@ -143,7 +144,62 @@ Why not use only needed - distribution of gates
 \chapter{Implementation}
 \section{Deep Learning model}
 \section{Training}
+
+To train described model we need to obtain dataset that consist of sample pairs $(X_i, Y_i)$ where $(X_i)$ is input signal and $Y_i$ is output sequence. 
+One of the mayor issues is determining correct output for given signal. One option is to use existing basecaller like Metrichor to determine output sequences. 
+
+ 
+
+
+
+
+Supervised learning so for need to specify dataset that for each input signal we need specify desired sequence of bases.
+{Xi, Yi} where len of X and len of Yi are not specified.
+
+For each input file, ground truth is not specified. If we use output of Metrihor or any other basecaller we limit our model to
+obtain accuracy of used basecaller in best case. We limit our train data to only sequencing data of know organisms (organisms with know reference genome) and try to correct data by aligning the read produced by metrichor or any other basecaller to reference genome. Alignment destination is used as target sequencing in training. 
+Using Metrichor basecalled data we can determine for each called event values such as start in signal, length of event, k-mer state in the pore and using move field change of k-mer from previous state. 
+
+Used dataset for training consists of raw signal from fast5 files split raw data into blocks of size $l$.
+For each block it is easy to determine basecalled events from Metrichor that belong to particular block using start information and from those events basecalled sequence. 
+
+
+$block\_index =  \frac{event_{start} * sampling\_rate}{block\_size}$
+
+Full basecalled sequence is aligned to the reference genome and alignment was obtained. For each block target sequence is determined from alignment information.
+
+Figure X shows how for given signal block
+
+
+Figure bla shows augmentation of data.
+
+To eliminate possibility of overfitting to the know reference, model is trained and tested on reads that align to different regions of reference genome and those regions should not overlap. Also test is conducted on separate set of sequencing data for different organism than the one used for training. 
+
 \section{Evaluation methods}
+To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
+From cigar string it is easy to calculate following:
+
+\begin{gather*}
+read\_len =  n\_matches + n\_missmateches + n\_insertions \\
+match\_rate = \dfrac{n\_matches}{read\_lenght} \\
+missmatch\_rate = \dfrac{n\_missmatches}{read\_lenght}\\
+insertion\_rate = \dfrac{n\_insertions}{read\_lenght}\\
+deletion\_rate = \dfrac{n\_deletion}{read\_lenght}\\
+match\_rate = \dfrac{n\_mateches}{read\_lenght}\\
+\end{gather*}
+
+Results are calculated for each read in test dataset and mean value and standard deviation is expressed for the whole dataset.
+
+To validate consistency of a basecaller, basecalled data is aligned to the reference genome and consensus sequence is called from all reads covering single position. Consensus sequence is compared with the reference genome and following measures are calculated:
+\begin{gather*}
+identity\_percentage =  100 * \dfrac{n\_correct\_bases}{reference\_lenght} \\
+match\_rate = \dfrac{n\_correct\_bases}{consensus\_lenght} \\
+snp\_rate = \dfrac{n\_snp}{consensus\_lenght}\\
+insertion\_rate = \dfrac{n\_insertions}{consensus\_lenght}\\
+deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}\\
+\end{gather*}
+
+
 \section{Technologies}
 
 Overall solution was implemented in Python programing language. Described model is implemented using TensorFlow. Tensorflow is an open source software library for numerical computation using data flow graphs developed by Google.  TensorFlow, even tho is considered low-level framework offers implementations of higher level concepts (layers, losses, and optimizers) which makes it great for prototyping while keeping it modular and extensible for highly specific tasks as well.
