@@ -38,7 +38,7 @@
             \@fonttimesfalse}
 \DeclareOption{times}{\@fonttimestrue%
             \@fontlmodernfalse}
-            
+
 % Tip rada
 \DeclareOption{seminar}{\@radseminartrue%
             \@radzavrsnifalse%
@@ -56,7 +56,7 @@
             \@radzavrsnifalse%
             \@raddiplomskifalse%
             \@radproizvoljnitrue}
-            
+
 % Encoding
 \DeclareOption{utf8}{\@encutftrue%
            \@enccpfalse}
@@ -151,7 +151,7 @@
 
 % Postavljanje stila citiranja
 \if@citeauthoryear \RequirePackage[authoryear, round]{natbib}
-\else \RequirePackage[numbers, square]{natbib}
+\else \RequirePackage[round, sort, numbers, square]{natbib}
 \fi
 
 % Umjesto poziva \RequirePackage[outsidefoot]{pageno}.
@@ -176,7 +176,7 @@
   \def\bibname{Literatura}
 }
 
-% Podešavanje oznaka kod listi (1. razina je crtica, 2. puni krug) 
+% Podešavanje oznaka kod listi (1. razina je crtica, 2. puni krug)
 \renewcommand{\labelitemi}{\textendash}
 \renewcommand{\labelitemii}{\textbullet}
 
@@ -312,7 +312,7 @@
   \def\@voditelj{\@latex@warning@no@line{Voditelj nije naveden.
   Koristi \noexpand\voditelj za definiranje}}
 \fi
-  
+
 % Dodavanje naredbe \tiprada za proizvoljni tip rada.
 % Primjer korištenja: \tiprada{Diplomski projekt}
 \if@radproizvoljni
@@ -320,7 +320,7 @@
   \def\@tiprada{\@latex@warning@no@line{Tip rada nije definiran.
   Koristi \noexpand\tiprada za definiranje}}
 \fi
-  
+
 % Ako je tip rada diplomski ili zavrsni, dodaj naredbu
 % \thesisnumber za definiranje broja rada.
 \if@radseminar\else\if@radproizvoljni\else
@@ -341,13 +341,13 @@
     \begin{titlepage}%
       % Koristi Helvetica font na naslovnoj stranici
       % (zamjena za Arial koji nije dostupan na svim platformama).
-      \fontfamily{phv}\selectfont% 
+      \fontfamily{phv}\selectfont%
       \let\footnotesize\small
       \let\footnoterule\relax
-    
+
       \begin{center}
         {\large \strsveuciliste}
-        
+
         {\large\bfseries \strfer}
       \end{center}
       \vfill
@@ -378,7 +378,7 @@
       \end{center}\par
       \vfill
       \begin{center}
-        {\large Zagreb, 
+        {\large Zagreb,
         \ifcase\month\or
           \strsijecanj\or \strveljaca\or \strozujak\or \strtravanj\or
           \strsvibanj\or \strlipanj\or \strsrpanj\or \strkolovoz\or

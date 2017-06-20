@@ -1,7 +1,10 @@
-\documentclass[times, utf8, diplomski, english]{fer}
+\documentclass[times, utf8, diplomski, numeric, english]{fer}
+
+\bibliographystyle{ieeetr}
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{nccmath}
+
 \begin{document}
 
 
@@ -25,7 +28,7 @@
 %% CHAPTER
 \chapter{Introduction}
 
-In recent years,  deep learning and usage of deep neural networks have significantly improved the state-of-the-art in many application domains such as computer vision, speech recognition, and natural language processing. 
+In recent years,  deep learning and usage of deep neural networks have significantly improved the state-of-the-art in many application domains such as computer vision, speech recognition, and natural language processing\cite{LeCun:1998:CNI:303568.303704}\cite{NIPS2012_4824}. 
 In this thesis, we present application of deep learning in the fields of Biology and Bioinformatics for analysis of DNA sequencing data. 
 
 DNA is a molecule that makes up the genetic material of a cell responsible for carrying the information an organism needs to survive, grow and reproduce. 
@@ -38,7 +41,8 @@ Base calling is a process assigning sequence of nucleotides (bases) to the raw d
 
 
 \section{Objectives}
-Goal of this thesis is to present novel approach for base calling of raw Nanopore sequencing data using deep learning convolutional neural networks.
+Goal of this thesis is to show that the accuracy of base calling is much dependent on the underlying software and can be improved using machine learning methods. Novel approach for base calling of raw data using convolutional neural networks is presented.
+ 
 \section{Organization}
 \indent Chapter 2 gives more detailed explanation of the problem, background on nanopore sequencing and overview of state-of-the-art basecallers.
 
@@ -75,8 +79,8 @@ Figure \ref{fg:sequencing} depicts process of sequencing.
 \end{figure}
 
 
-Development of sequencing started with work of Frederick Sanger. In 1977, he developed the first sequencing method which allowed 
-read lengths up to 1000 bases with very high accuracy (99.9%) at a cost of 1$ per 1000 bases[mile_skripta].
+Development of sequencing started with work of Frederick Sanger\cite{mile}\cite{Pettersson2009}. In 1977, he developed the first sequencing method which allowed 
+read lengths up to 1000 bases with very high accuracy (99.9\%) at a cost of 1\$ per 1000 bases[mile\_skripta].
 Second generation sequencing (IAN Torrent and Illumina devices) reduced the price of sequencing while maintaining high accuracy. Mayor disadvantage of these devices is read length of only a few hundred base pairs.
 The need for technologies that would produce longer reads led to the development of so-called third generation sequencing technologies.
 PacBio developed sequencing method that allowed read lengths up to several thousand bases but at a cost of accuracy. Error Rates of PacBio devices are ~10-15\%. 
@@ -85,11 +89,35 @@ Cost makes the main obstacle stopping widespread genome sequencing.
 A significant breakthrough occurred in May 2015 with a release of MinION sequencer by Oxford Nanopore making sequencing drastically less expensive and even portable.
 
 
-\section{Oxford Nanopore}
+\section{Oxford Nanopore MinION}
+
+
+The MinION device by Oxford Nanopore Technologies (referenca) is the first portable DNA sequencing device.
+
+It’s small weight, low cost, and long read length combined with high-throughput and decent accuracy yield promising results in various applications such as monitoring infectious disease outbreaks [2][3], characterizing structural variants in cancer[4], full human genome assembly [5] what could potentially lead to personalized genomic medicine.
+
+Although MinION is able to produce long reads, usually tens of thousand
+base pairs (with reported reads above 100 thousand pairs[loman]), they have a high sequencing error
+rate depending of the pore model used. Older pore models, R7.3 chemistry.....%TODO
+
+
+
+As its name says, nano-scale pores are used to sequence DNA. An electrical potential is applied over an insulating membrane in which a  pore is inserted. As the DNA passes through the pore, the sensor detects changes in ionic current caused by differences in the shifting nucleotide sequences occupying the pore. Figure bla shows change of ionic current as DNA strain being pulled through a nanopore.
+
+
 
 \subsection{Technology}
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/nanopore.png}
+		\caption{DNA strain being pulled through a nanopore[ref na video])}
+		\label{fg:nanopore}
+	\end{center}
+\end{figure}
 
 \subsection{Basecalling}
+
+
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -102,41 +130,30 @@ A significant breakthrough occurred in May 2015 with a release of MinION sequenc
 
 \section{Existing basecallers}
 
-Official basecaller for Nanopore reads is Metrichor. 
 
-MetriKNOW - software that analyses signal as segments it into blocks called events. Events are described with lenght of the block, mean value of messured current and its variance.
+\subsection{Official}
+\subsubsection{Albacore}
+Albacore is basecaller by Oxford Nanopore Technologies ready for production and activly supported.
+The source code of Albacore was not provided and is only available as a binary through the ONT Developer Channel to users who have signed the Developer terms and conditions. 
 
-Metrichor - uses events output from minknow and models HMM  - each state represents contex in the pore - 5 base pares. When transitioning from one state to an other - event is emited. By modeling emission probabilities and transition probabilities - from sequence of events, using viterbi algorithm is not difficult to determine most probable sequence expressed as series of transitions ih the model.
-From states modeled as 5 bp it is impossible to model reppetitions of more than 5 bases.
+\subsubsection{NanoNet}
 
-
-Nancall - open source basecaller uses HMM approch like the original R7 Metrichor). Metrichor. Supports only R7 chemistry. 
-Nanocall [7] was the first open-source basecaller for the MinION offered as an alternative to the proprietary Metrichor software. It was written in C++. Nanocall accepts the segmented signal from minKNOW and assigns
-k-mers to the events using a hidden Markov model (HMM). A
-
-DeepNano - first open source basecaller based on neural networks. It uses bidirectional rnn. Originaly supported R7 chemistry, later on support for R9.4 and R9.5 was added.
-
-Deepnano is a python package built on the Theano framework, and uses a deep recurrent neural network (RNN) model to call bases. ONT has also moved towards RNN basecalling and this is now the main method for calling R9 reads
-
-DeepNano Before Metrichor made its own switch from HMM- to RNNbasecalling,
-the open-source basecaller DeepNano [8] already implemented a
-form of RNN basecalling, booking a significant improvement in accuracy with
-respect to the then-current Metrichor version (corresponding to the SQK-MAP-
-006 kit, late 2015).
- DeepNano was written in Python, using the Theano library
-[50]. The RNN employed in DeepNano consists of 3 hidden layers of 100 units per
-layer for 1D basecalling and 4 hidden layers of 250 units for 2D. Rather than
-LSTM-nodes, as currently used in Metrichor basecallers, DeepNano implements
-gated recurrent units (GRUs) [51] to accou
+Nanonet uses the same neural network that is used in Albacore but it is continually under development. As such, it does not contain production code features such as error handling or logging. It uses CURRENNT library for running neural networks.
 
 
-NanoNet Nanonet provides recurrent neural network basecalling via CURRENNT.
+\subsubsection{Scrappie}
 
-Albacore -Albacore is a C++ project designed to provide a high-performance end-to-end analysis pipeline that can be run on (potentially) any platform. Albacore is currently only available through the ONT Developer Channel to users who have signed the Developer terms and conditions. 
+Scrappie is an other basecaller by Oxford Nanopore Technologies. Simillar to NanoNet, it is platform for ongoing development. Scrappie was the first basecaller reported to specifically address homopolymer basecalling. It became publicly available just recently in June, 2017.
 
-Scrappie - A proprietary basecaller by Metrichor and platform for ongoing
-development, Scrappie was the first basecaller reported to specifically address
-homopolymer basecalling. It was just recently released on their official GitHub.
+\subsection{Third-party}
+\subsubsection{Nancall}
+
+Nanocall\cite{David046086} was the first third-party open source basecaller for nanopore data. It uses HMM approch like the original R7 Metrichor. Metrichor. It uses the segmented signal from minKNOW and assigns k-mers to the events using a hidden Markov model. 
+Nanocall does not support newer chemistries after R7.3 directly, it can be used but its accuracy is significantly lower than other basecallers.
+ 
+ 
+\subsubsection{DeepNano}
+DeepNano\cite{Boza2017}  was the first open-source basecaller based on neural networks that uses bidirectional recurent neural networks. DeepNano was written in Python, using the Theano library. When released, originaly supported R7 chemistry, but support for R9.4 and R9.5 was added recently.
 
 
 
@@ -294,7 +311,6 @@ Conclusion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DONE
 \bibliography{references}
-\bibliographystyle{plainnat}
 
 \begin{abstract}
 Abstract.
