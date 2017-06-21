@@ -1,9 +1,10 @@
 \documentclass[times, utf8, diplomski, numeric, english]{fer}
 
-\bibliographystyle{ieeetr}
+
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{nccmath}
+\usepackage{hyperref}
 
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
@@ -149,8 +150,6 @@ Nanocall does not support newer chemistries after R7.3 directly, it can be used 
 
 \textbf{DeepNano}\cite{Boza2017}  was the first open-source basecaller based on neural networks that uses bidirectional recurent neural networks. DeepNano was written in Python, using the Theano library. When released, originaly supported R7 chemistry, but support for R9.4 and R9.5 was added recently.
 
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Methods}
@@ -160,19 +159,24 @@ Instead of opting for the traditional path using RNN (recurent neural networks) 
 
 
 \section{Arhitecture}
-In this section brief overview of RNNs and CNNs is given and reasons why later is chosen in this work.
+This section gives general idea behind recurrent neural networks and possible problems that serve as motivation for the different approach - usage of convolutional neural networks.
 
 \subsection{RNN}
+Recurrent neural networks can be viewed as a simple feed-forward network with the twist that the current output does not only depend on the current input but previous inputs as well. RNNs store that information in their hidden state and that state is updated each step. The figure shows simple RNN and the same RNN unfolded in time.  Unrolling is simple way of showing how network processes each input in the sequence and updates it's hidden state and is shown in figure  \ref{fg:rnn}. 
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/rnn.png}
+		\caption{An unrolled recurrent neural network}
+		\label{fg:rnn}
+	\end{center}
+\end{figure}
 
-Recurent neural networks be viewed as a simple feed-forward network with the twist that the current output is not only dependant on the current input but previous inputs as well. RNNs store those information in their hidden state and that state is updated each step. Figure shows simple RNN and the same RNN unfolded in time.  Unrolling is simple way of showing how network processes each input in the sequence and updates it's hidden state.
-
-These networks are trained using variant of backpropagation called backpropagation through time which is essentially the same as classical backpropagation on an unfolded network. Gradient is propagated through the entire recurrence relation and gradient is multiplied in each step with same factor, depending on a scale it makes gradient vanish (drop to 0) or exponentialy grow each step and explode. These issues are called the vanishing and exploding gradient and are generally resolved by a variant of RNN called LSTM.[referenca na tutorial]. To take into account dependencies of both previous inputs and next inputs in the sequence Bidirectional networks are used.  Idea is to combine two RNNs (one in positive direction, one in negative time direction) and have output of the current state expressed as a function of hidden states of both RNN and current input. This is approch used in DeepNano. 
-http://www.wildml.com/2015/10/recurrent-neural-networks-tutorial-part-3-backpropagation-through-time-and-vanishing-gradients/
+These networks are trained using a variant of backpropagation called backpropagation through time which is essentially the same as classical backpropagation on an unfolded network. The gradient is propagated through the entire recurrence relation and the gradient is multiplied in each step with the same factor, depending on a scale it can make gradient vanish (drop to 0) or exponentially grow each step and explode. These issues are called the vanishing and exploding gradient\cite{rnn-blog} and are generally resolved by a variant of RNN called \textit{LSTM}\cite{hochreiter1997long}. To take into account dependencies of both previous inputs and next inputs in the sequence bidirectional networks (\textit{BRNN}) are used.  Idea is to combine two RNN (one in the positive direction, one in negative time direction) and have an output of the current state expressed as a function of hidden states of both RNN and current input. This is the approach used in DeepNano\cite{Boza2017}. 
 
 
-One of the major drawback of this kinds of networks is computation time. RNNs operate sequentially, the output for the second step depends on the first step and so on which makes parallelisation capabilities of RNN quite limited. This especially goes for Bidirectional RNNs.
+One of the major drawbacks of this kind of networks is computation time. RNN operate sequentially, the output for the second step depends on the first step and so on, which makes parallelization capabilities of RNN quite limited. This especially goes for Bidirectional RNN.
 
-
+ 
 
 \subsection{CNN}
 
@@ -199,10 +203,10 @@ The goal is to design model which can convert from a sequence of events of curre
 Suppose that we have an input sequence $X$ (signal data) and the desired output sequence $Y$ (nucleotides). $X$ and $Y$ will be of different lengths(the length of base pairs is always smaller than the length of the raw signal), which may pose a problem.
 
 Instead of having a variable size of the output from the neural network, we can limit it to length $m$ (maximal length of output sequence $Y$).
-The neural network can be considered to be simply a function that takes in some input sequence $X$ (of length $n$) and generate some sequence $O$ (of length $m$). Note that this generated sequence is not same as output sequence $Y$.
+The neural network can be considered to be simply a function that takes in some input sequence $X$ (of length $n$) and generate some sequence $O$ (of length $m$). Note that this generated sequence is not same as output sequence $Y$. 
 
 \subsection{Definition}
-They key idea behind CTC is that instead of directly generating output sequence $Y$ as output from the neural network, we  generate a probability distribution at every output length (from $t$=1 to $t$=$m$) that after \textit{decoding} gives maximum likelihood output sequence $Y$. 
+They key idea behind Connectionist Temporal Classification(CTC)\cite{Graves:2006:CTC:1143844.1143891} is that instead of directly generating output sequence $Y$ as output from the neural network, we  generate a probability distribution at every output length (from $t$=1 to $t$=$m$) that after \textit{decoding} gives maximum likelihood output sequence $Y$. 
 Finally, network is trained by creating an objective function that restricts the maximum likelihood decoding for a given sequence $X$ to correspond to our desired target sequence $Y$.
 
 
@@ -237,6 +241,8 @@ Y^{*} = \argmin_{Y \in L^m} P(Y|X),\\
 \end{gather*}
 This problem is computationally intractable but exist algorithms that approximate decoding. One of those algorithms is beam search.
 
+
+This serves as a brief overview of the method and explains key concepts why it is used. More detailed explanation can be found in original paper\cite{Graves:2006:CTC:1143844.1143891} or various blog post\cite{ctc-blog}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Implementation}
@@ -359,7 +365,7 @@ Conclusion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DONE
 \bibliography{references}
-
+\bibliographystyle{plainnat}
 \begin{abstract}
 Abstract.
 
