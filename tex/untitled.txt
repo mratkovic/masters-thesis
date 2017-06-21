@@ -1,0 +1,102 @@
+
+
+
+
+Conceptually, the MinION sequencer works as follows. 
+
+First, DNA is sheared into
+fragments of 8–20 kbp and adapters are ligated to either end of the fragments. The re-
+sultingDNAfragmentspassthroughaproteinembeddedinamembraneviaananometre-
+
+sized channel, a nanopore. A single DNA strand passes through the pore. Optionally,
+hairpin protein adapter can merge two DNA strands, allowing both template and com-
+plement read passing through the nanopore sequentially for more accurate reads.
+
+This technique is referred as 2D reads, while we focus on 1D reads containing only template
+DNA and no hairpin adapter.
+
+Electrical current runs through the nanopore and exact nucleotides context within
+influences the nanopore’s resistance. This resistive effect is our sensor data, that is the
+current fluctuations as DNA passes though the pore. The nanopore is 6 nucleotides
+wide, and many models use this information in their approaches, while we’re opted out of this technicality.
+
+
+
+Basecalling for this generation of sequencing is easiest to explain - passes through, current changes.
+
+MetriKNOW - software that analyses signal as segments it into blocks called events. Events are described with lenght of the block, mean value of messured current and its variance.
+
+Metrichor - uses events output from minknow and models HMM  - each state represents contex in the pore - 5 base pares. When transitioning from one state to an other - event is emited. By modeling emission probabilities and transition probabilities - from sequence of events, using viterbi algorithm is not difficult to determine most probable sequence expressed as series of transitions ih the model.
+
+From states modeled as 5 bp it is impossible to model reppetitions of more than 5 bases.
+
+Nancall - open source basecaller uses HMM approch like the original R7 Metrichor). Metrichor. Supports only R7 chemistry. 
+
+DeepNano - first open source basecaller based on neural networks. It uses bidirectional rnn. Originaly supported R7 chemistry, later on support for R9.4 and R9.5 was added.
+Deepnano is a python package built on the Theano framework, and uses a deep recurrent neural network (RNN) model to call bases. ONT has also moved towards RNN basecalling and this is now the main method for calling R9 reads
+
+DeepNano Before Metrichor made its own switch from HMM- to RNNbasecalling,
+the open-source basecaller DeepNano [8] already implemented a
+form of RNN basecalling, booking a significant improvement in accuracy with
+respect to the then-current Metrichor version (corresponding to the SQK-MAP-
+006 kit, late 2015). DeepNano was written in Python, using the Theano library
+[50].
+The RNN employed in DeepNano consists of 3 hidden layers of 100 units per
+layer for 1D basecalling and 4 hidden layers of 250 units for 2D. Rather than
+LSTM-nodes, as currently used in Metrichor basecallers, DeepNano implements
+gated recurrent units (GRUs) [51] to accou
+
+
+
+
+
+There is a price to pay for this, as we’ll see we have to stack convolutions into deep layers in order to view the entire input and each of those layers is calculated sequentially. But the calculations at each layer happen concurrently and each individual computation is small (compared to an LSTM) such that in practice we get a big speed up.
+
+When I set out to write this I only had my own experience and Google’s ByteNet to back this claim up. Just this week, Facebook published their fully convolutional translation model and reported a 9X speed up over LSTM based models.
+With LSTMs we achieve this by running two LSTMs, one left to right and the other right to left and concatenating their outputs. This works well in practice but doubles our computational load.
+
+
+This model used advance state-of-the-art gated residual convolutional neural network,
+with top models having 270 layers and over 3M parameters, yet improvements over
+Metrichorn baseline are marginal. 
+
+Furthermore, R9.5 and 1Dˆ2 reads are under
+development which shall yield this paper’s result obsolete quite soon, yet underlying
+code developed could easily be adjusted and trained on new data.
+
+
+Unlike Nanonet which uses custom OpenCL kernels or Albacore — a novel ONT
+basecaller as of May 2017 lacking GPU support, this work used world-class compu-
+tational framework tensorf l ow with highly optimized kernels and large development
+community. 
+
+
+
+Neural networks are networks that information flows through. In the forward pass our input flows and transforms, hopefully becoming a representation that is more amenable to our task. During the back phase we propagate a signal, the gradient, back through the network. Just like in vanilla RNNs, that signal gets multiplied frequently and if it goes through a series of numbers that are smaller than 1 then it will fade to 0. That means that our network will end up with very little signal to learn from.
+
+This leaves us with something of a tradeoff. On the one hand, we’d like to be able to take in as much context as possible. On the other hand, if we try to increase our receptive fields by stacking layers we risk vanishing gradients and a failure to learn anything.
+
+The general idea is to reduce the distance between the signal coming from the networks loss and each individual layer. The way this is done is by adding a residual/direct connection between every layer and its predecessors. That way, the gradient can flow from each layer to its predecessors directly.
+
+
+The first goal for speech recognition is to build a classifier which can convert from a sequence of events of current messurements into a sequence of base pairs
+
+Suppose that we have an input sequence x (sound data) and a desired output sequence y (phonemes). Thus, x and y will be of different lengths, which poses a problem from our standard RNN architecture (in which we predict one output for one input).
+
+
+
+We have several options for correcting this problem. The first option is to align the output sequence y
+with the input sequence; each element yi of the output sequence is placed on some corresponding element xi. Then, the network is trained to output yi at timestep i (with input xi) and output a "blank" element on timesteps for which there is no output. These sequences are said to be "aligned", since we've placed each output element yi in its proper temporal position usially difficult to obtain.
+
+
+Instead of requiring aligned data, however, we can train our network directly on unaligned data. This requires some clever tricks, objective functions, and output decoding algorithms; collectively, this method is known as Connectionist Temporal Classification.
+
+For the purposes of Connectionist Temporal Classification (CTC), consider the entire neural network to be simply a function that takes in some input sequence x (of length T) and outputs some output sequence y (also of length T). As long as we have an objective function on the output sequence y, we can train our network to produce the desired output.
+
+Suppose that for each input sequence x (sound data) we have a label ℓ. The label is a sequence of letters from some alphabet L, which is potentially shorter than the input sequence x; let U be the length of the label. They key idea behind CTC is that instead of somehow generating the label as output from the neural network, we instead generate a probability distribution at every timestep (from t=1 to t=T). We can then decode this probability distribution into a maximum likelihood label. Finally, we train our network by creating an objective function that coerces the maximum likelihood decoding for a given sequence x to correspond to our desired label ℓ.
+
+
+http://andrew.gibiansky.com/blog/machine-learning/speech-recognition-neural-networks/
+
+
+
