@@ -1,10 +1,15 @@
 \documentclass[times, utf8, diplomski, numeric, english]{fer}
 
-
 \usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{nccmath}
-\usepackage{hyperref}
+%\usepackage{hyperref}
+
+\usepackage{footnote}
+\usepackage{graphicx}
+
+
+
 
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
@@ -176,13 +181,10 @@ These networks are trained using a variant of backpropagation called backpropaga
 
 One of the major drawbacks of this kind of networks is computation time. RNN operate sequentially, the output for the second step depends on the first step and so on, which makes parallelization capabilities of RNN quite limited. This especially goes for Bidirectional RNN.
 
- 
-
 \subsection{CNN}
+Convolutional Neural Network (CNNs) typically used for various Computer Vision. CNNs were responsible for major breakthroughs in Image Classification and are the core of most Computer Vision systems today. More recently we’ve also started to apply CNNs to problems in Natural Language Processing and gotten some interesting results.
 
-\begin{gather*}
-y_i = w_1 * x_{i-1} + w_2 * x_{i} + w_3 * x_{i+1}
-\end{gather*}
+Easiest way to understand a convolution is by thinking of it as a sliding window function applied to a matrix or in case of signal processing vector. The sliding window is called a kernel or a filter. Figure \ref{fg:convolution} shows example of convolution with kernel size 3 and how output is calculated as sum of element-wise multiplication of kernel elements and input vector.
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.5\textwidth]{./imgs/convolution.png}
@@ -191,8 +193,42 @@ y_i = w_1 * x_{i-1} + w_2 * x_{i} + w_3 * x_{i+1}
 	\end{center}
 \end{figure}
 
+When compered with RNN, in which output can depend on the entire sequence in convolution layer if depends only on limited spatial information in previous layer defined by kernel size. This is called receptive field of the convolution. 
+To see more of the original input, convolutions are stacked stacked. Figure \ref{fg:receptive field} shows each new layers depends on larger portion of the input($z_i$ \textit{sees} 5 elements of input).
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{./imgs/receptive_field.png}
+		\caption{Receptive field after 2 layers of convolutions with kernel size 3}
+		\label{fg:receptive field}
+	\end{center}
+\end{figure}
+
+During calculation, each “patch” a convolutional kernel operates on is independent of the other meaning that the entire input layer can be processed concurrently. 
+
+CNNs are basically just several layers of convolutions with nonlinear activation functions.
+
+
+As previously show, stacking layers increases receptive field. 
+Neural networks are networks that information flows through. In the forward pass our input flows and transforms, hopefully becoming a representation that is more amenable to our task. During the back phase we propagate a signal, the gradient, back through the network. Just like in RNNs, that signal gets multiplied and depending on the scales it can vanish. Result of that is no gradient flowing to lower layers and no parameter upgrades. On the one hand, we’d like to be able to take in as much context as possible. On the other hand, if we try to increase our receptive fields by stacking layers we risk vanishing gradients and a failure to learn anything. Resnet arhitecture\cite{resnet} and its residual layes address this issue.
+
 \subsection{Residual Networks}
-Vanishing gradient problem
+A Residual Network, or ResNet is a neural network architecture which solves the problem of vanishing gradients in the simplest way possible. 
+
+Figure bla on the left shows classical CNN that takes input and transformes it using convolution layers and activation. 
+This can be presentent as H(x) function from input to output. 
+H(x) can be written as F(X) + X.  F(X) is called The residual.
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{./imgs/resnet_block.png}
+		\caption[Comparison between classical CNN and CNN with residual connection ]{Comparison between classical CNN and CNN with residual connection \protect\footnotemark}
+		\label{fg:receptive field}
+	\end{center}
+\end{figure}
+\footnotetext{Figure adapted from the original paper \cite{resnet}}
+Instead of Networks learns residual and at the output x is simply arithmetically added to the F(x). 
+During backpropagation, learning residual gives us nice property. By stacking these layers, the gradient could theoretically “skip” over all the intermediate layers and reach the bottom without being diminished.
+
+
 \subsection{Gated Residual Networks}
 Why not use only needed - distribution of gates
 
@@ -236,11 +272,18 @@ L(D) = - \sum_{(X,Y)\in D}^{} ln P(Y | X)
 \subsection{Output decoding}
 Given the probability distribution $P(Y | X)$ and given input sequence $X$, most likely $Y^{*}$ can be computed.
 \begin{gather*}
-Y^{*} = \argmin_{Y \in L^m} P(Y|X),\\
+Y^{*} = \argmax_{Y \in L^m} P(Y|X) = \argmax_{Y \in L^m} \sum_{\pi \in decode^{-1}(Y)}^{} P(\pi | X),\\
 \text{~where $L^m$ set of all possible sequences over alphabet $L$ with length less than or equals to $m$}
 \end{gather*}
-This problem is computationally intractable but exist algorithms that approximate decoding. One of those algorithms is beam search.
 
+The probability of a single output sequence $Y$ is the sum of probabilities of all paths that decode to $Y$ and the most probable sequence is needed to be found.
+Calculation of all possible sequences is computationally intractable but exist algorithms that approximate decoding. 
+
+One naive possibility is to take the most probable path and say that output sequence corresponds to that path.
+This is not necessarily true: suppose we have one path with probability $0.1$ corresponding with sequence $A$, and ten paths with probabilities  $0.05$ each corresponding to sequence $B$. Clearly, label $B$ is preferable overall, since it has an overall probability of $0.5$; however, this naive best path decoding would select label $A$, which has a higher probability than any single path for label $B$.
+
+Better approximations can be calculated using beam search algorithm proposed in paper\cite{Graves:2006:CTC:1143844.1143891}.  
+Idea behind this approach is tu 
 
 This serves as a brief overview of the method and explains key concepts why it is used. More detailed explanation can be found in original paper\cite{Graves:2006:CTC:1143844.1143891} or various blog post\cite{ctc-blog}.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -365,7 +408,7 @@ Conclusion.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DONE
 \bibliography{references}
-\bibliographystyle{plainnat}
+\bibliographystyle{unsrtnat}
 \begin{abstract}
 Abstract.
 
