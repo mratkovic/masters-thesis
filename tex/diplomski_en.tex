@@ -4,6 +4,7 @@
 \usepackage{amsmath}
 \usepackage{nccmath}
 %\usepackage{hyperref}
+\usepackage[section]{placeins}
 
 \usepackage{footnote}
 \usepackage{graphicx}
@@ -118,11 +119,12 @@ As its name says, nano-scale pores are used to sequence DNA. An electrical poten
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{./imgs/nanopore.png}
-		\caption{DNA strain being pulled through a nanopore[ref na video])}
+
+		\caption[DNA strain being pulled through a nanopore]{DNA strain being pulled through a nanopore \protect\footnotemark}
 		\label{fg:nanopore}
 	\end{center}
 \end{figure}
-
+\footnotetext{Figure adapted from https://nanoporetech.com/how-it-works}
 
 
 \section{Existing basecallers}
@@ -184,17 +186,82 @@ One of the major drawbacks of this kind of networks is computation time. RNN ope
 \subsection{CNN}
 Convolutional Neural Network (CNNs) typically used for various Computer Vision. CNNs were responsible for major breakthroughs in Image Classification and are the core of most Computer Vision systems today. More recently we’ve also started to apply CNNs to problems in Natural Language Processing and gotten some interesting results.
 
-Easiest way to understand a convolution is by thinking of it as a sliding window function applied to a matrix or in case of signal processing vector. The sliding window is called a kernel or a filter. Figure \ref{fg:convolution} shows example of convolution with kernel size 3 and how output is calculated as sum of element-wise multiplication of kernel elements and input vector.
+Easiest way to understand a convolution is by thinking of it as a sliding window function applied to a matrix or in case of signal processing vector. The sliding window is called a kernel or a filter.  Figure \ref{fg:convolution} shows example of convolution with kernel size 3 and how output is calculated as sum of element-wise multiplication of kernel elements and input vector. Stride defines by how much filter is shifted at each step. By how much the window is moved is step of the convolution and it is called stride. Usually to preserve the same dimension, padding is added to the borders. 
+
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.5\textwidth]{./imgs/convolution.png}
-		\caption{Convolution layer, kernel size 3}
+		\caption{Convolution layer, kernel size 3 with with stride 1.}
 		\label{fg:convolution}
 	\end{center}
 \end{figure}
 
+
+\subsubsection{Activations}
+ After each convolution layer usually nonlinear layer (or activation layer) is applied. The purpose of this layer is to introduce nonlinearity to a system that basically has just been computing linear operations during the conv layers (just element wise multiplications and summations). In classical neural networks, nonlinear functions like tanh and sigmoid were often used, due to undesirable property of saturation(at either tail of 0 or 1 for sigmoid, -1 or 1 for tanh), other activations are used with these networks. 
+ReLU. The Rectified Linear Unit has become very popular in the last few years. It computes the function f(x)=max(0,x). In other words, the activation is simply thresholded at zero (see image above on the left).
+ It was found to greatly accelerate (e.g. a factor of 6 in Krizhevsky et al.) the convergence of stochastic gradient descent compared to the sigmoid/tanh functions and is computationaly efficiant to calculate.
+
+\begin{equation}
+ReLU(x) =
+	\begin{cases}
+		x, & \text{if}\ x>0 \\
+		0, & \text{otherwise}
+	\end{cases} \\
+\end{equation}
+
+
+Downside of ReLU saturation to the 0 on one side. Once in this state, neuron is unlikely to recover, because the function gradient at 0 is also 0, so gradient descent learning will not alter the weights. This is the problem known as \textit{dying ReLU}.
+Different variants of ReLU, PrRelu and ELU are often used to resolve this problem\cite{prelu}\cite{elu}.  
+
+\begin{equation}	
+PrELU(x)=
+\begin{cases}
+x, & \text{if}\ x>0 \\
+\alpha x, & \text{otherwise}
+\end{cases}\\
+\end{equation}
+\begin{equation}
+ELU(x)=
+\begin{cases}
+x, & \text{if}\ x>0 \\
+\alpha (exp(x) - 1), & \text{otherwise}
+\end{cases}	\\
+\end{equation}
+
+Figure \ref{fg:activations} show different activation functions.
+\begin{figure}[!htb]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{./imgs/activations.png}
+		\caption{Activation functions}
+		\label{fg:activations}
+	\end{center}
+\end{figure}
+
+
+
+\subsubsection{Pooling}
+
+The pooling layer is usually placed after the Convolutional layer. Its primary utility lies in reducing the spatial dimensions of the input for the next Convolutional Layer while keeping the most salient information.
+Pooling also provides basic invariance to translating (shifting).
+
+ Much like the convolution operation performed above, the pooling layer takes a sliding window or a certain size that is moved in stride across the input transforming the values. Usually transformation is performed by taking the maximum value from the values observable in the window (max pooling).
+Figure \ref{fg:pooling} show imensionality reduction by pooling by factor of 2 using pool of size 2 with stride 2.
+\begin{figure}[!htb]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{./imgs/pooling.png}
+		\caption{Dimensionality reduction by pooling, kernel size 2, stride 2}
+		\label{fg:pooling}
+	\end{center}
+\end{figure}
+
+  
+% RNN comparison
+\subsubsection{Comparision with RNN}
 When compered with RNN, in which output can depend on the entire sequence in convolution layer if depends only on limited spatial information in previous layer defined by kernel size. This is called receptive field of the convolution. 
 To see more of the original input, convolutions are stacked stacked. Figure \ref{fg:receptive field} shows each new layers depends on larger portion of the input($z_i$ \textit{sees} 5 elements of input).
+
+
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.5\textwidth]{./imgs/receptive_field.png}
@@ -203,13 +270,14 @@ To see more of the original input, convolutions are stacked stacked. Figure \ref
 	\end{center}
 \end{figure}
 
+% paralelization
 During calculation, each “patch” a convolutional kernel operates on is independent of the other meaning that the entire input layer can be processed concurrently. 
 
 CNNs are basically just several layers of convolutions with nonlinear activation functions.
 
 
 As previously show, stacking layers increases receptive field. 
-Neural networks are networks that information flows through. In the forward pass our input flows and transforms, hopefully becoming a representation that is more amenable to our task. During the back phase we propagate a signal, the gradient, back through the network. Just like in RNNs, that signal gets multiplied and depending on the scales it can vanish. Result of that is no gradient flowing to lower layers and no parameter upgrades. On the one hand, we’d like to be able to take in as much context as possible. On the other hand, if we try to increase our receptive fields by stacking layers we risk vanishing gradients and a failure to learn anything. Resnet arhitecture\cite{resnet} and its residual layes address this issue.
+Neural networks are networks that information flows through. In the forward pass our input flows and transforms, hopefully becoming a representation that is more amenable to our task. During the back phase we propagate a signal, the gradient, back through the network. Just like in RNNs, that signal gets multiplied and depending on the scales it can vanish. Result of that is no gradient flowing to lower layers and no parameter upgrades. On the one hand, we’d like to be able to take in as much context as possible. On the other hand, if we try to increase our receptive fields by stacking layers we risk vanishing gradients and a failure to learn anything. Resnet arhitecture\cite{resnet} with its residual layes address this issue.
 
 \subsection{Residual Networks}
 A Residual Network, or ResNet is a neural network architecture which solves the problem of vanishing gradients in the simplest way possible. 
@@ -221,7 +289,7 @@ H(x) can be written as F(X) + X.  F(X) is called The residual.
 	\begin{center}
 		\includegraphics[width=0.7\textwidth]{./imgs/resnet_block.png}
 		\caption[Comparison between classical CNN and CNN with residual connection ]{Comparison between classical CNN and CNN with residual connection \protect\footnotemark}
-		\label{fg:receptive field}
+		\label{fg:resnet_block}
 	\end{center}
 \end{figure}
 \footnotetext{Figure adapted from the original paper \cite{resnet}}
@@ -229,16 +297,14 @@ Instead of Networks learns residual and at the output x is simply arithmetically
 During backpropagation, learning residual gives us nice property. By stacking these layers, the gradient could theoretically “skip” over all the intermediate layers and reach the bottom without being diminished.
 
 
-\subsection{Gated Residual Networks}
-Why not use only needed - distribution of gates
-
 \section{CTC Loss}
 
 The goal is to design model which can convert from a sequence of events of current measurements into a sequence of base pairs.
 
 Suppose that we have an input sequence $X$ (signal data) and the desired output sequence $Y$ (nucleotides). $X$ and $Y$ will be of different lengths(the length of base pairs is always smaller than the length of the raw signal), which may pose a problem.
 
-Instead of having a variable size of the output from the neural network, we can limit it to length $m$ (maximal length of output sequence $Y$).
+Instead of having a variable size of the output from the neural network, we can limit it to length $m$ and from direct output of the network in some way decode our desired output sequence $Y$. $m$ is the maximal allowed length of output sequence $Y$.
+Idea is that the network outputs is fixed width and the variable length sequence is derived from them.
 The neural network can be considered to be simply a function that takes in some input sequence $X$ (of length $n$) and generate some sequence $O$ (of length $m$). Note that this generated sequence is not same as output sequence $Y$. 
 
 \subsection{Definition}
@@ -251,30 +317,38 @@ Given an input sequence $X$ of length $n$, the network generates some probabilit
 The output generated by the network is called \textit{path}. Path is defined by the sequence of it's elements $\pi = (\pi_1, \pi_2, ..., \pi_m)$.
 The probability of a given path $\pi$, given inputs $X$, can then be written as the product of all its forming elements:
 
-\begin{gather*}
+\begin{equation}
+\begin{gathered}
 P(\pi | X) = \prod_{t=1}^{m} o_t(\pi_t), \\
-\text{where $o_t(\pi_t)$ is probability of $\pi_t$ being $t^{th}$ element on path $\pi$} 
-\end{gather*}
+\text{where $o_t(\pi_t)$ is probability of $\pi_t$ being $t^{th}$ element on path $\pi$}
+\end{gathered}
+\end{equation}
 
 Real output sequence, for given path, is obtained by traversing the path and removing all blanks and duplicate letters. Let $ decode(\pi) $ be the output sequence corresponding to a path $\pi$. The probability of output sequence $Y$ is then the sum of probabilities of all paths that decode to $Y$:
-\begin{gather*}
+\begin{equation}
+\begin{gathered}
 P(Y | X) = \sum_{\pi \in decode^{-1}(Y)}^{} P(\pi | X)
-\end{gather*}
-
+\end{gathered}
+\end{equation}
 \subsection{Objective}
 Given the dataset $D = \{(X, Y)\}$, training objective is the maximization of the likelihood of each training sample which corresponds to the minimization of negative log likelihood:
 
-\begin{gather*}
+\begin{equation}
+\begin{gathered}
 L(D) = - \sum_{(X,Y)\in D}^{} ln P(Y | X)
-\end{gather*}
+\end{gathered}
+\end{equation}
 
 
 \subsection{Output decoding}
 Given the probability distribution $P(Y | X)$ and given input sequence $X$, most likely $Y^{*}$ can be computed.
-\begin{gather*}
+\begin{equation}
+\begin{gathered}
 Y^{*} = \argmax_{Y \in L^m} P(Y|X) = \argmax_{Y \in L^m} \sum_{\pi \in decode^{-1}(Y)}^{} P(\pi | X),\\
-\text{~where $L^m$ set of all possible sequences over alphabet $L$ with length less than or equals to $m$}
-\end{gather*}
+\text{~where $L^m$ set of all possible sequences over alphabet $L$ }\\
+\text{with length less than or equals to $m$}
+\end{gathered}
+\end{equation}
 
 The probability of a single output sequence $Y$ is the sum of probabilities of all paths that decode to $Y$ and the most probable sequence is needed to be found.
 Calculation of all possible sequences is computationally intractable but exist algorithms that approximate decoding. 
@@ -290,6 +364,21 @@ This serves as a brief overview of the method and explains key concepts why it i
 %% CHAPTER
 \chapter{Implementation}
 \section{Deep Learning model}
+
+Final model is Residual Neural network consisting of 72 residual blocks depicted in figure bla. Each residual block contains
+2 blocks of activation, batch norm and convolution  making total number of convolution layers 144. This is a variant of arhitecture proposed in paper \cite{identitet} with the difference of ELU being used as activation instead of ReLU as it is reported\cite{resnet-elu} to speeds up learning process and improve accuracy as the depth increase. It is difficult to discuss actual performance benefit over simple ReLU without more detailed analysis and comparison for this problem. 
+
+Pooling with kernel size 2 is used every 48 layers making output 8 times smaller than signal input. This is used to help training by reducing number of required blank labels in the output and reducing computation effort. 
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.2\textwidth]{./imgs/model.png}
+		\caption{Used residual block}
+		\label{fg:model_block}
+	\end{center}
+\end{figure}
+
+
 \section{Training}
 
 To train described model we need to obtain dataset that consist of sample pairs $(X_i, Y_i)$ where $(X_i)$ is input signal and $Y_i$ is output sequence. 
@@ -340,25 +429,67 @@ To eliminate possibility of overfitting to the know reference, model is trained 
 To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
 From cigar string it is easy to calculate following:
 
-\begin{gather*}
-read\_len =  n\_matches + n\_missmatches + n\_insertions \\
-match\_rate = \dfrac{n\_matches}{read\_lenght} \\
-missmatch\_rate = \dfrac{n\_missmatches}{read\_lenght}\\
-insertion\_rate = \dfrac{n\_insertions}{read\_lenght}\\
-deletion\_rate = \dfrac{n\_deletion}{read\_lenght}\\
-match\_rate = \dfrac{n\_matches}{read\_lenght}\\
-\end{gather*}
+\begin{equation}
+\begin{gathered}
+read\_len =  n\_matches + n\_missmatches + n\_insertions 
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+match\_rate = \dfrac{n\_matches}{read\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+missmatch\_rate = \dfrac{n\_missmatches}{read\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+insertion\_rate = \dfrac{n\_insertions}{read\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+deletion\_rate = \dfrac{n\_deletion}{read\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+match\_rate = \dfrac{n\_matches}{read\_lenght}
+\end{gathered}
+\end{equation}
 
-Results are calculated for each read in test dataset and mean value and standard deviation is expressed for the whole dataset.
+Results are calculated for each read in test dataset and median value, mean and standard deviation is expressed for the whole dataset.
 
 To validate consistency of a basecaller, basecalled data is aligned to the reference genome and consensus sequence is called from all reads covering single position. Consensus sequence is compared with the reference genome and following measures are calculated:
-\begin{gather*}
-identity\_percentage =  100 * \dfrac{n\_correct\_bases}{reference\_lenght} \\
-match\_rate = \dfrac{n\_correct\_bases}{consensus\_lenght} \\
-snp\_rate = \dfrac{n\_snp}{consensus\_lenght}\\
-insertion\_rate = \dfrac{n\_insertions}{consensus\_lenght}\\
-deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}\\
-\end{gather*}
+\begin{equation}
+\begin{gathered}
+identity\_percentage =  100 * \dfrac{n\_correct\_bases}{reference\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+match\_rate = \dfrac{n\_correct\_bases}{consensus\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+snp\_rate = \dfrac{n\_snp}{consensus\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+insertion\_rate = \dfrac{n\_insertions}{consensus\_lenght}
+\end{gathered}
+\end{equation}
+\begin{equation}
+\begin{gathered}
+deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
+\end{gathered}
+\end{equation}
+
+
 
 \begin{figure}[!ht]
 	\begin{center}
