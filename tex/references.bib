@@ -101,6 +101,17 @@
 	address = {New York, NY, USA},
 } 
 
+@article {human_seq,
+	author = {Jain, Miten and Koren, Sergey and Quick, Josh and Rand, Arthur C and Sasani, Thomas A and Tyson, John R and Beggs, Andrew D and Dilthey, Alexander T and Fiddes, Ian T and Malla, Sunir and Marriott, Hannah and Miga, Karen H and Nieto, Tom and O{\textquoteright}Grady, Justin and Olsen, Hugh E and Pedersen, Brent S and Rhie, Arang and Richardson, Hollian and Quinlan, Aaron and Snutch, Terrance P and Tee, Louise and Paten, Benedict and Phillippy, Adam M. and Simpson, Jared T and Loman, Nicholas James and Loose, Matthew},
+	title = {Nanopore sequencing and assembly of a human genome with ultra-long reads},
+	year = {2017},
+	doi = {10.1101/128835},
+	publisher = {Cold Spring Harbor Labs Journals},
+	abstract = {Nanopore sequencing is a promising technique for genome sequencing due to its portability, ability to sequence long reads from single molecules, and to simultaneously assay DNA methylation. However until recently nanopore sequencing has been mainly applied to small genomes, due to the limited output attainable. We present nanopore sequencing and assembly of the GM12878 Utah/Ceph human reference genome generated using the Oxford Nanopore MinION and R9.4 version chemistry. We generated 91.2 Gb of sequence data (~30x theoretical coverage) from 39 flowcells. De novo assembly yielded a highly complete and contiguous assembly (NG50 ~3Mb). We observed considerable variability in homopolymeric tract resolution between different basecallers. The data permitted sensitive detection of both large structural variants and epigenetic modifications. Further we developed a new approach exploiting the long-read capability of this system and found that adding an additional 5x-coverage of "ultra-long" reads (read N50 of 99.7kb) more than doubled the assembly contiguity. Modelling the repeat structure of the human genome predicts extraordinarily contiguous assemblies may be possible using nanopore reads alone. Portable de novo sequencing of human genomes may be important for rapid point-of-care diagnosis of rare genetic diseases and cancer, and monitoring of cancer progression. The complete dataset including raw signal is available as an Amazon Web Services Open Dataset at: https://github.com/nanopore-wgs-consortium/NA12878.},
+	URL = {http://biorxiv.org/content/early/2017/04/20/128835},
+	eprint = {http://biorxiv.org/content/early/2017/04/20/128835.full.pdf},
+	journal = {bioRxiv}
+}
 
 
 @InProceedings{graves_decode,
@@ -145,6 +156,58 @@
 	editor =       {http://andrew.gibiansky.com},
 	url={http://andrew.gibiansky.com/blog/machine-learning/speech-recognition-neural-networks/},
 	note = {[Online; posted 23-April-2014]}},
+}
+
+@manual{nanopore_video,
+	author =       {Brown, C},
+	title =        { YouTube Technology Focus Live Stream No thanks, I’ve already
+	got one},
+	editor =   {https://www.youtube.com/channel/UC5yMlYjHSgFfZ37LYq-dzig},
+	url={https://www.youtube.com/watch?v=nizGyutn6v4},
+	note = {[Online; posted 8-March-2016]}},
+}
+
+@manual{loman2-800k,
+	author =       {Loman, Nick},
+	title =        {Thar she blows! Ultra long read method for nanopore sequencing},
+	editor =   {http://lab.loman.net/},
+	url={http://lab.loman.net/2017/03/09/ultrareads-for-nanopore/},
+	note = {[Online; posted 9-March-2017]}},
+}
+
+@manual{loman1-100k,
+	author =       {Loman, Nick},
+	title =        { Nanopore R9 rapid run data release},
+	editor =   {http://lab.loman.net/},
+	url={http://lab.loman.net/2016/07/30/nanopore-r9-data-release/},
+	note = {[Online; posted 30-July-2016]}},
+}
+
+
+@Article{homopolymers,
+	author={Goodwin, Sara
+	and McPherson, John D.
+	and McCombie, W. Richard},
+	title={Coming of age: ten years of next-generation sequencing technologies},
+	journal={Nat Rev Genet},
+	year={2016},
+	month={Jun},
+	publisher={Nature Publishing Group, a division of Macmillan Publishers Limited. All Rights Reserved.},
+	volume={17},
+	number={6},
+	pages={333-351},
+	abstract={Since the completion of the human genome project in 2003, extraordinary progress has been made in genome sequencing technologies, which has led to a decreased cost per megabase and an increase in the number and diversity of sequenced genomes. An astonishing complexity of genome architecture has been revealed, bringing these sequencing technologies to even greater advancements. Some approaches maximize the number of bases sequenced in the least amount of time, generating a wealth of data that can be used to understand increasingly complex phenotypes. Alternatively, other approaches now aim to sequence longer contiguous pieces of DNA, which are essential for resolving structurally complex regions. These and other strategies are providing researchers and clinicians a variety of tools to probe genomes in greater depth, leading to an enhanced understanding of how genome sequence variants underlie phenotype and disease.},
+	note={Review},
+	issn={1471-0056},
+	url={http://dx.doi.org/10.1038/nrg.2016.49}
+}
+
+@manual{ont-basecallers,
+	author =       {Nanopore Community},
+	title =        {Basecalling overview},
+	editor =   {https://community.nanoporetech.com},
+	url={https://community.nanoporetech.com/technical_documents/data-analysis/v/datd_5000_v1_reve_22aug2016/basecalling-overvi},
+	note = {[Accessed; 12-July-2017]}},
 }
 
 @misc{resnet,
@@ -222,6 +285,9 @@
 	Year = {2017},
 	Eprint = {arXiv:1706.02515},
 }
+
+
+
 @misc{bytenet,
 	Author = {Nal Kalchbrenner and Lasse Espeholt and Karen Simonyan and Aaron van den Oord and Alex Graves and Koray Kavukcuoglu},
 	Title = {Neural Machine Translation in Linear Time},
