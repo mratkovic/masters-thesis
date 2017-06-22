@@ -9,7 +9,12 @@
 \usepackage{footnote}
 \usepackage{graphicx}
 
+\usepackage{makecell}
 
+\renewcommand\theadalign{cb}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
 
 
 \DeclareMathOperator*{\argmin}{\arg\!\min}
@@ -51,7 +56,7 @@ Base calling is a process assigning sequence of nucleotides (bases) to the raw d
 
 \section{Objectives}
 Goal of this thesis is to show that the accuracy of base calling is dependent on the underlying software and can be improved using machine learning methods. Novel approach for base calling of raw data using convolutional neural networks is presented.
- 
+
 \section{Organization}
 \indent Chapter 2 gives more detailed explanation of the problem, background on nanopore sequencing and overview of state-of-the-art basecallers.
 
@@ -105,12 +110,6 @@ The MinION device by Oxford Nanopore Technologies (referenca) is the first porta
 
 It’s small weight, low cost, and long read length combined with high-throughput and decent accuracy yield promising results in various applications such as monitoring infectious disease outbreaks [2][3], characterizing structural variants in cancer[4], full human genome assembly [5] what could potentially lead to personalized genomic medicine.
 
-Although MinION is able to produce long reads, usually tens of thousand
-base pairs (with reported reads above 100 thousand pairs[loman]), they have a high sequencing error
-rate depending of the pore model used. Older pore models, R7.3 chemistry.....%TODO
-
-
-
 
 
 \subsection{Technology}
@@ -126,21 +125,38 @@ As its name says, nano-scale pores are used to sequence DNA. An electrical poten
 \end{figure}
 \footnotetext{Figure adapted from https://nanoporetech.com/how-it-works}
 
+Minion offers possiblity of sequencing 1D or 2D reads. 
+ If information from only one strand is used, the base-calling is termed 1-directional (1D); whereas a 2D base-calling is performed, if information from both strands is incorporated, which results in higher base quality.
+ MinION is able to produce long reads, usually tens of thousand
+ base pairs (with reported reads above 100 thousand pairs[loman]), they have a high sequencing error
+ 
+Switch from older R7.3 to newer R9 chemistry increases  accuracy of produced data. Accuracy of 1D data increased from 70\% to 85\% while Accuracy of 2D reads from 88\% to 94\%. video. This increase of accuracy makes 1D reads usable to analysis with benefit of faster sample preparation and faster sequencing than 2D reads.
 
+
+  
 \section{Existing basecallers}
 
 Output of the sequencer is fast5 file. Various fields, including signal.
 Picture bla shows structure of fast5 file. Analysis fields are added if file is passed to MinKnow for signal segmentation.
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.5\textwidth]{./imgs/basecalling.png}
-		\caption{Basecalling}
-		\label{fg:basecalling}
-	\end{center}
-\end{figure}
+
 
 \subsection{Official}
+Oxford Nanopore  has recently, with R9 version of the platform, introduced a variety of base calling
+options. Some of those are production ready and some experimental. Majority of information regarding differences, specifications and similar is only available through community nanoporetech. 
+https://community.nanoporetech.com/
+
+Metrichor, a spin-of f of ONT and its main developer of proprietary analysis software, maintains a range of basecallers that haveremained the go-to option for most MinION users. 
+
+Metrichor is an Oxford Nanopore company, offering cloud-based platform EPI2ME for analysis nanopore data. 
+Even tho Metrichor is not basecaller but rather the platform, its basecaller is offten called Metrichor for short because to fact that point no local basecallers were available.
+Initially, the Metrichor  relied on hidden Markov models (HMM) to find the biological sequence underlying the segmented signal.
+Preprocess included segmentation of of the signal into smaller blocks called events defined by my mean value and the variance of the signal in the block, block length and start location of the block in entire signal.
+
+Metrichor than assumed that each event depends on a context of k = 6 consecutive bases and that the context typically shifts by one base in each step. HMM states model context present in the pore and transition correspond to change of bases in the pore. During transition from one state to an other, event is emitted. Basecalling is preformed using Viterbi algorithm which determines most likely sequence of states for the observed sequence of events. Limitatin of this approch is calling homopolymer stretches longer than its k-mer as called bases are determined by difference in two consequitive states.
+ 
+As of early 2016, with release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN)-implementation. Currently Oxford Nanopore offers several RNN-based local basecaller versions under different names; Albacore, Nanonet and the MinKNOW integrated basecaller. Albacore and the MinKNOW version are stable versions intended for regular MinION users.
+
 \textbf{Albacore} is basecaller by Oxford Nanopore Technologies ready for production and activly supported.
 The source code of Albacore was not provided and is only available as a binary through the ONT Developer Channel to users who have signed the Developer terms and conditions. 
 
@@ -151,12 +167,21 @@ The source code of Albacore was not provided and is only available as a binary t
 
 \subsection{Third-party}
 
-\textbf{Nanocall}\cite{David046086} was the first third-party open source basecaller for nanopore data. It uses HMM approch like the original R7 Metrichor. Metrichor. It uses the segmented signal from minKNOW and assigns k-mers to the events using a hidden Markov model. 
-Nanocall does not support newer chemistries after R7.3 directly, it can be used but its accuracy is significantly lower than other basecallers.
+
+
+\textbf{Nanocall}\cite{David046086} was the first third-party open source basecaller for nanopore data. It uses HMM approch like the original R7 Metrichor. Metrichor. It uses the segmented signal from minKNOW and assigns k-mers to the events using a hidden Markov model. Nanocall does not support newer chemistries after R7.3.
  
 
-\textbf{DeepNano}\cite{Boza2017}  was the first open-source basecaller based on neural networks that uses bidirectional recurent neural networks. DeepNano was written in Python, using the Theano library. When released, originaly supported R7 chemistry, but support for R9.4 and R9.5 was added recently.
+\textbf{DeepNano}\cite{Boza2017}  was the first open-source basecaller based on neural networks that uses bidirectional recurent neural networks. DeepNano was written in Python, using the Theano library. When released, originaly supported R7 chemistry, but support for R9 and R9.4 was added recently.
 
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.5\textwidth]{./imgs/basecalling.png}
+		\caption{Basecalling}
+		\label{fg:basecalling}
+	\end{center}
+\end{figure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Methods}
@@ -457,6 +482,7 @@ To eliminate possibility of overfitting to the know reference, model is trained 
 \section{Evaluation methods}
 To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
 From cigar string it is easy to calculate following:
+the proportion of bases in a sequencing ‘read’ that align to a matching base in a reference sequence
 
 \begin{equation}
 \begin{gathered}
@@ -562,6 +588,112 @@ All training was done on the server with  \textit{Intel(R) Xeon(R) E5-2640 CPU},
 
 \section{Error rates per read}
 
+
+\begin{table}[htb]
+	\caption{Ecoli R9 basecalled read lengths in base pairs}
+	\label{tbl:ecoli_lens}
+	\centering
+
+\begin{tabular}{lrrr}
+	\toprule
+	{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
+	\midrule
+	deepnano   &        5526.5 &  8126.694000 &  7406.554786 \\
+	metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
+	nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
+	resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
+	\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htb]
+	\caption{lambda R9 basecalled read lengths in base pairs}
+	\label{tbl:ecoli_lens}
+	\centering
+	
+\begin{tabular}{lccc}
+	\toprule
+	{} &  \thead{median} &    \thead{mean} &    \thead{std} \\
+	\midrule
+	deepnano   &        4740.0 &   4664.750000 &  2628.512543 \\
+	metrichor  &        5491.0 &   5482.952941 &  2748.446253 \\
+	nanonet    &        4931.5 &   4925.804878 &  2739.987512 \\
+	resdeep    &        5229.0 &   5138.764706 &  2605.958080 \\
+	\bottomrule
+\end{tabular}
+
+\end{table}
+
+
+\begin{table}[htb]
+	\caption{Alignment specifications of Ecoli R9 basecalled reads}
+	\label{tbl:spec}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		
+		deepnano   &                  90.254762 &                      6.452852 &                       3.274420 &                     11.829965 \\
+		metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
+		nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
+		resdeep    &                  91.408591 &                      5.019141 &                       3.477739 &                      7.471608 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[htb]
+	\caption{Alignment specifications of lambda R9 basecalled reads}
+	\label{tbl:spec}
+	\centering
+\begin{tabular}{lcccc}
+	\toprule
+	{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+	\midrule
+	deepnano   &                  86.997687 &                      9.623494 &                       3.442490 &                     16.052830 \\
+	metrichor  &                  87.714988 &                      7.835052 &                       4.093851 &                     10.757491 \\
+	nanonet    &                  88.415611 &                      8.178372 &                       3.629653 &                     11.793022 \\
+	resdeep    &                  89.694482 &                      7.238095 &                       3.078796 &                     13.450292 \\
+	\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[htb]
+	\caption{Consensus specifications of Ecoli R9 basecalled reads}
+	\label{tbl:spec}
+	\centering
+
+\begin{tabular}{lcccc}
+	\toprule
+	{} &  \thead{Match \%} &  \thead{Snp \%} &  \thead{Insertion \%} &  \thead{Deletion \%} \\
+	\midrule
+	deepnano  &      98.874222 &     1.004407 &           0.121371 &          0.904092 \\
+	metrichor &      99.122300 &     0.746359 &           0.131342 &          0.629992 \\
+	nanonet   &      97.969082 &     1.570034 &           0.460885 &          1.515800 \\
+	resdeep   &      99.236079 &     0.647438 &           0.116482 &          0.550985 \\
+	\bottomrule
+\end{tabular}
+
+\end{table}
+
+\begin{table}[htb]
+	\caption{Consensus specifications of lambda R9 basecalled reads}
+	\label{tbl:spec}
+	\centering
+
+\begin{tabular}{lcccc}
+	\toprule
+	{} &  \thead{Match \%} &  \thead{Snp \%} &  \thead{Insertion \%} &  \thead{Deletion \%} \\
+	\midrule
+	deepnano  &      99.344256 &     0.643333 &           0.012412 &          0.264780 \\
+	metrichor &      99.562607 &     0.418824 &           0.018569 &          0.146485 \\
+	nanonet   &      99.442586 &     0.540898 &           0.016516 &          0.196127 \\
+	resdeep   &      99.541180 &     0.440219 &           0.018601 &          0.297613 \\
+	\bottomrule
+\end{tabular}
+
+\end{table}
 
 Figure \ref{fg:cigar_op_dist} shows how cigar operations are distributed across the reads. It is shown that missmatches and insertion occur more frequently at the ends.  This is not only the case for mincall, other basecallers show same property. This may be caused by incorrect detection of read start and end.
 
