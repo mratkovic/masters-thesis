@@ -434,8 +434,9 @@ Docker was used for automating the deployments on different machines. It helps u
 Nvidia Docker\footnote{\url{https://github.com/NVIDIA/nvidia-docker}} was used for GPU support.
 
 
-All training was done on the server with  \textit{Intel(R) Xeon(R) E5-2640 CPU}, 600 GB of RAM and \textit{NVIDIA TITAN X Black} with 6GB of GDDR5 memory and 2880 CUDA cores.
+Training and all evaluations were done on the server with  \textit{Intel(R) Xeon(R) E5-2640 CPU}, 600 GB of RAM and \textit{NVIDIA TITAN X Black} with 6GB of GDDR5 memory and 2880 CUDA cores.
 
+All developed and used code, including utility scripts is publicly available on \textit{GitHub}\footnote{\url{https://goo.gl/RVeyjU}} under the \textit{MIT Licence}.
 
 \section{File formats}
 This section will give brief overview of file formats used and information present in them.
@@ -507,7 +508,7 @@ Alignment part in the genome is used as target. Using cigar string returned by a
 
 To eliminate possibility of overfitting to the know reference, model is trained and tested on reads from different organisms. Due to limited ammount of public available nanopore sequence data, ecoli was \textit{devided} into two regions.
 Reads were split into into train and test portions depending in which region of ecoli they align to. 
-If read aligns inside first 60\% of the ecoli it is placed into train set and if it aligns in second portion it is placed into test set. Reads whose aligment overlaps train and test region are not used. Important to note that ecoli,and genome of majority of other bacteris, has cyclical genome so reads with alignment that wraps over edges are also discarded. Total train set consist of bla bla reads.
+If read aligns inside first 70\% of the ecoli it is placed into train set and if it aligns in second portion it is placed into test set. Reads whose aligment overlaps train and test region are not used. Important to note that ecoli,and genome of majority of other bacteris, has cyclical genome so reads with alignment that wraps over edges are also discarded. Total train set consist of bla bla reads.
 Overview of the entire learning pipeline is shown in figure \ref{fg:train_pipe}.
 \begin{figure}[!ht]
 	\begin{center}
@@ -521,7 +522,7 @@ Overview of the entire learning pipeline is shown in figure \ref{fg:train_pipe}.
 Final model is residual neural network consisting of 72 residual blocks depicted in figure \ref{fg:model_block}. This is a variant of arhitecture proposed in paper \cite{identitet} with the difference of ELU being used as activation instead of ReLU as it is reported\cite{resnet-elu} to speeds up learning process and improve accuracy as the depth increase. 
 without running more detailed analysis is difficult if this this actually results in performance benefit over simple ReLU .
 
-Each residual block contains 2 convolution layers making total number of convolution layers 144. Each convolutional layer in this models uses 64 kernels of 3. Because  sequenced read is always shorter than the raw signal, pooling with kernel size 2 is used every 48 layers resulting in reduction of dimensionality by factor 8. This is used to help training by reducing number of required blank labels in the output and computation effort. This network has 2 milion peremeters that are learned during training.
+Each residual block contains 2 convolution layers making total number of convolution layers 144. Each convolutional layer in this models uses 64 kernels of 3. Because  sequenced read is always shorter than the raw signal, pooling with kernel size 2 is used every 48 layers resulting in reduction of dimensionality by factor 8. This is used to help training by reducing number of required blank labels in the output and computation effort. This network has 2 milion peremeters that are learned during training. 
 
 
 \begin{figure}[!ht]
@@ -565,6 +566,7 @@ Training process is implemented in \textit{producers/consumer} pattern with sync
 \chapter{Results}
 Developed was compared with other available basecallers that support R9 chemisty. This includes third-party basically DeepNano and official basecallers by Oxford Nanopore (cloud-based Metrichor and NanoNet).
 Fact that ground truth is not actually known makes evaluation difficult. Two approaches were used to get clearer information about each basecaller.
+In all tables and figures, developed model is addressed as \textit{resdeep} simply due to fact it is deep residual neural network.
 
 
 
@@ -670,7 +672,7 @@ All results are consistent on both datasets using both aligners.
 
 
 \end{table}
-\begin{table}[htb]
+\begin{table}[H]
 	\caption{Alignment specifications of bwa lambda R9 basecalled reads}
 	\label{tbl:lambda_rates}
 	\centering
@@ -687,6 +689,8 @@ All results are consistent on both datasets using both aligners.
 	\end{tabular}
 	
 \end{table}
+
+
 Distribution of these rates are shown using  histogram plot on figure \ref{fg:hist} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
 histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
 
@@ -714,6 +718,7 @@ histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is importan
 	\end{center}
 \end{figure}
 
+
 Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insertions, and deletions are distributed across the reads. It is shown that mismatches and insertion occur more frequently at the ends. This is not only the case for the developed basecaller, but other basecallers show same property. This could be because context information is not available from both sides when edges are base called.
 
 \begin{figure}[!ht]
@@ -729,15 +734,16 @@ Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insert
 
 
 \subsection{Consensus}
-To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
-From cigar string it is easy to calculate following:
-the proportion of bases in a sequencing ‘read’ that align to a matching base in a reference sequence
+
+Only aligning the reads to the reference and calculating described error rates and match rates per read could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner doesn't discard short and highly ambiguous reads) will always return perfect alignment as certainly nucleotide "A" is present in the reference. This model has perfect match rate with non-existent missmatches, insertions, and deletions.  The second approach is used, in addition to the first, to give a more rigorous comparison.
+
+Idea is to check if the reconstruction of the reference is possible from the reads and how closely does it match the original reference. Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition and majority has to agree on both length and the inserted bases. Figure \ref{fg: consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
+Percentage of covered base is calculated to show much of reference genome is covered by at least one read. Similarly as before, match rate, mismatch rate, insertion and deletion rates are calculated but this time for whole consensus sequence. 
 
 
+Results are shown in the table. 
+For ecoli, developed model shows results promising results comparable with Metrichor in all aspects (matches, mismatches, insertions, and deletions). 
 
-Results are calculated for each read in test dataset and median value, mean and standard deviation is expressed for the whole dataset.
-
-To validate consistency of a basecaller, basecalled data is aligned to the reference genome and consensus sequence is called from all reads covering single position. Consensus sequence is compared with the reference genome and following measures are calculated:
 \begin{equation}
 \begin{gathered}
 identity\_percentage =  100 * \dfrac{n\_correct\_bases}{reference\_lenght}
@@ -773,10 +779,6 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 		\label{fg:consensus}
 	\end{center}
 \end{figure}
-
-
-
-\section{Error rates per read}
 
 
 
@@ -878,7 +880,10 @@ Interesting thing to analyze are the lengths of basecalled reads for each tool. 
 			\label{fg:r_lens}
 		\end{center}
 	\end{figure}
-	
+
+\section{Speeds}
+deep network with milions of parameters and 144layers
+
 
 %TODO ZAKLJUCAK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -891,6 +896,24 @@ The main reason you might want to consider convolutions in your work is because 
 Most of the tasks I’ve encountered with text end up having the same requirement of the architecture: Maximize the receptive field while maintaining an adequate flow of gradients
 
 When I set out to write this I only had my own experience and Google’s ByteNet to back this claim up. Just this week, Facebook published their fully convolutional translation model and reported a 9X speed up over LSTM based models.
+
+
+
+
+
+
+On all tests developed model show excellent results. To prove this, this model needs to be tested on larger datasets from different sequencing runs of various organisms.
+
+
+All test are done on data for R9 chemistry. Separate model using same architecture and loss can be trained on newer data.  Publicly available data R9.4 can be found here. It would be interesting to see how well can this approach compare to other reacently released models by Oxford Nanopore.
+
+R9.5 data and new 1D2 reads are just becoming available. 
+
+
+Metrichor was only available basecaller and was offered as a cloud service. Without added support for newer sequencing data, this model has limited application. It can be used as a demonstration of a different approach to base calling which yields promising results. 
+As newer versions of basecallers by Oxford Nanopore do not support for data sequenced with older chemistry, this tool could be used to re-basecall all sequencing data and possibly improve results in some application.
+
+Future work involves training on publicly available R9.4 data (loman)(zika) and R9.5 when it becomes available. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper that shows excellent results in both speed and accuracy in tasks of language translation. 
 
 
 
