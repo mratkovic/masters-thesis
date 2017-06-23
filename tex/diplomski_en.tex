@@ -609,7 +609,7 @@ match\_rate = \dfrac{n\_matches}{read\_lenght}
 \end{equation}
 
 
-For each basecaller, these rates are expressed as median, mean and variance of all aligned reads. To summarize the results, the median is used as a single value as it is more robust measure. Results are show in the table \ref{tbl:ecoli_rates} for ecoli dataset and table \ref{tbl:lambda_rates} for lambda. 
+For each basecaller, these rates are expressed as median, mean and variance of all aligned reads. To summarize the results, the median is used as a single value as it is more robust measure and in the case of skewed distributions like these even more informative.  Results are show in the table \ref{tbl:ecoli_rates} for ecoli dataset and table \ref{tbl:lambda_rates} for lambda. 
 Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both dataset show all basecallers being a bit bias towards deletions than insertions but this can be bias of aligner used (GraphMap). To eliminate that possibility, tests were repeated with BWA with almost same results. Results for BWA are show in tables
 \ref{tbl:ecoli_rates_bwa} and \ref{tbl:lambda_rates_bwa}.
 All results are consistent on both datasets using both aligners.
@@ -687,13 +687,20 @@ All results are consistent on both datasets using both aligners.
 	\end{tabular}
 	
 \end{table}
-Distribution of these rates are shown using  histogram plot on figure \ref{fg:bla} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
+Distribution of these rates are shown using  histogram plot on figure \ref{fg:hist} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
 histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
-
 
 \begin{figure}[!htb]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/kde_cigar_small.png}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/hist_20.png}
+		\caption{Cigar operations histogram over relative position inside read}
+		\label{fg:hist}
+	\end{center}
+\end{figure}
+
+\begin{figure}[!htb]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/kde_cigar_lines.png}
 		\caption{Cigar operations histogram over relative position inside read}
 		\label{fg:ecoli_kde}
 	\end{center}
@@ -701,7 +708,7 @@ histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is importan
 
 \begin{figure}[!htb]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_small.png}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_lines.png}
 		\caption{Cigar operations histogram over relative position inside read}
 		\label{fg:lambda_kde}
 	\end{center}
