@@ -556,13 +556,29 @@ Training process is implemented in \textit{producers/consumer} pattern with sync
 
 
 
-\section{Evaluation methods}
-To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
-From cigar string it is easy to calculate following:
-the proportion of bases in a sequencing ‘read’ that align to a matching base in a reference sequence
+
+
+
+%TODO REZULTATI
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% CHAPTER
+\chapter{Results}
+Developed was compared with other available basecallers that support R9 chemisty. This includes third-party basically DeepNano and official basecallers by Oxford Nanopore (cloud-based Metrichor and NanoNet).
+Fact that ground truth is not actually known makes evaluation difficult. Two approaches were used to get clearer information about each basecaller.
+
+
+
+\section{Error rates per read}
+
+Basecalled reads are aligned to the reference using GraphMap and alignments are analyzed. If the whole sequencing is done correctly and quality basecaller is used, all reads should align to the reference. Missmatches, insertions and deletions, in that case, should be due to limitations of sequencing technology and noise in the signal.
+
+To get conclusive results this is done on both test set of the ecoli dataset as well as lambda dataset. 
+A portion of the read length that aligns as correctly is called match\_rate. Same goes for mismatches and insertions. 
+Sum of all matches, mismatches, and insertions is equal to the reads length \ref{eq:read_len}. Deletions are not part of the read as they are the absence of base that occurs in the reference. Deletion\_rate is defined as a number of deletions in the alignment over the length of the aligned read. All expressions can be found bellow.
 
 \begin{equation}
 \begin{gathered}
+\label{eq:read_len}
 read\_len =  n\_matches + n\_missmatches + n\_insertions 
 \end{gathered}
 \end{equation}
@@ -591,6 +607,75 @@ deletion\_rate = \dfrac{n\_deletion}{read\_lenght}
 match\_rate = \dfrac{n\_matches}{read\_lenght}
 \end{gathered}
 \end{equation}
+
+
+For each basecaller, these rates are expressed as median, mean and variance of all aligned reads. To summarize the results, the median is used as a single value as it is more robust measure. Results are show in the table \ref{tbl:ecoli_rates} for ecoli dataset and table \ref{tbl:lambda_rates} for lambda. 
+
+
+
+
+\begin{table}[htb]
+	\caption{Alignment specifications of Ecoli R9 basecalled reads}
+	\label{tbl:ecoli_rates}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		
+		deepnano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
+		metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
+		nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
+		resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+\begin{table}[htb]
+	\caption{Alignment specifications of lambda R9 basecalled reads}
+	\label{tbl:lambda_rates}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		deepnano   &                  86.997687 &                      9.623494 &                       3.442490 &                     16.052830 \\
+		metrichor  &                  87.714988 &                      7.835052 &                       4.093851 &                     \textbf{10.757491} \\
+		nanonet    &                  88.415611 &                      8.178372 &                       3.629653 &                     11.793022 \\
+		resdeep    &                 \textbf{ 89.694482} &                     \textbf{ 7.238095} &                       \textbf{3.078796} &                     13.450292 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+Distribution of these rates are shown using  histogram plot on figure \ref{fg:bla} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
+histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
+
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/kde_cigar_small.png}
+		\caption{Cigar operations histogram over relative position inside read}
+		\label{fg:ecoli_kde}
+	\end{center}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_small.png}
+		\caption{Cigar operations histogram over relative position inside read}
+		\label{fg:lambda_kde}
+	\end{center}
+\end{figure}
+Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both dataset show all basecallers being a bit bias towards deletions than insertions but this can be bias of aligner used (GraphMap). Results are consistent on both datasets.
+
+
+\subsection{Consensus}
+To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
+From cigar string it is easy to calculate following:
+the proportion of bases in a sequencing ‘read’ that align to a matching base in a reference sequence
+
+
 
 Results are calculated for each read in test dataset and median value, mean and standard deviation is expressed for the whole dataset.
 
@@ -640,15 +725,6 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 	\end{center}
 \end{figure}
 
-
-
-
-%TODO REZULTATI
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% CHAPTER
-\chapter{Results}
-\section{Data}
-
 \section{Error rates per read}
 
 
@@ -688,38 +764,7 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 \end{table}
 
 
-\begin{table}[htb]
-	\caption{Alignment specifications of Ecoli R9 basecalled reads}
-	\label{tbl:spec}
-	\centering
-	\begin{tabular}{lcccc}
-		\toprule
-		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
-		\midrule
-		
-		deepnano   &                  90.254762 &                      6.452852 &                       3.274420 &                     11.829965 \\
-		metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
-		nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
-		resdeep    &                  91.408591 &                      5.019141 &                       3.477739 &                      7.471608 \\
-		\bottomrule
-	\end{tabular}
-\end{table}
 
-\begin{table}[htb]
-	\caption{Alignment specifications of lambda R9 basecalled reads}
-	\label{tbl:spec}
-	\centering
-\begin{tabular}{lcccc}
-	\toprule
-	{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
-	\midrule
-	deepnano   &                  86.997687 &                      9.623494 &                       3.442490 &                     16.052830 \\
-	metrichor  &                  87.714988 &                      7.835052 &                       4.093851 &                     10.757491 \\
-	nanonet    &                  88.415611 &                      8.178372 &                       3.629653 &                     11.793022 \\
-	resdeep    &                  89.694482 &                      7.238095 &                       3.078796 &                     13.450292 \\
-	\bottomrule
-\end{tabular}
-\end{table}
 
 
 \begin{table}[htb]
@@ -770,21 +815,7 @@ Figure \ref{fg:cigar_op_dist} shows how cigar operations are distributed across 
 
 
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=1\textwidth]{./imgs/results/ecoli/kde_cigar.png}
-		\caption{Cigar operations histogram over relative position inside read}
-		\label{fg:ecoli_kde}
-	\end{center}
-\end{figure}
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=1\textwidth]{./imgs/results/lambda/kde_cigar.png}
-		\caption{Cigar operations histogram over relative position inside read}
-		\label{fg:lambda_kde}
-	\end{center}
-\end{figure}
 \section{Consensus analysis}
 
 %TODO ZAKLJUCAK
