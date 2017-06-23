@@ -9,7 +9,7 @@
 \usepackage{footnote}
 \usepackage{graphicx}
 \usepackage{float}
-
+\usepackage{mathtools}
 \usepackage{makecell}
 
 \renewcommand\theadalign{cb}
@@ -17,6 +17,8 @@
 \renewcommand\theadgape{\Gape[4pt]}
 \renewcommand\cellgape{\Gape[4pt]}
 
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
 
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
@@ -144,7 +146,7 @@ https://community.nanoporetech.com/
 Metrichor is an Oxford Nanopore company, that offers cloud-based platform EPI2ME for analysis of nanopore data. 
 Initially, base calling was only available by uploading data to the platform - that being the reason why this basecaller is often called Metrichor even though Metrichor is actually a name of the company.
 
-Older version of Metrichor relied on hidden Markov models (HMM) to find the biological sequence corresponding to the signal. Preprocess included segmentation of the signal into smaller chunks called events defined by start location of the chunk, length, mean value and variance of the signal in the chunk. Metrichor than assumed that each event usually corresponds to a context of 6 bases being present in the pore and that the context is typically shifted by one base in each step. 
+Older version of Metrichor relied on hidden Markov models (HMM) to find the biological sequence corresponding to the signal. Preprocess included segmentation of the signal into smaller chunks called events defined by start location of the chunk, length, mean value and variance of the signal in the chunk. Metrichor than assumed that each event usually corresponds to a context of 5 bases being present in the pore and that the context is typically shifted by one base in each step. 
 HMM states are modeled as a context present in the pore and transition correspond to change of bases in the pore. During the transition from one state to another, an event is emitted. Basecalling is performed using the Viterbi algorithm which determines the most likely sequence of states for the observed sequence of events. This approach showed poor results when calling long homopolymer stretches as the context in the pore remains the same\cite{homopolymers}.
 
 With the release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN) implementation. Currently, Oxford Nanopore offers several RNN-based local basecaller versions under different names\cite{ont-basecallers}: Albacore, Nanonet and basecaller integrated into MinKNOW.  
@@ -383,15 +385,57 @@ If offers more robust learning process by reducing dependance on scale of the pa
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Implementation}
+
+\section{Datasets}
+
+Datasets show in table ref are used. Both datasets were previously have passed to MinKNOW and have been basecalled by Metrichor.
+Baseced data by Metrichor are used to train our model. Figure \ref{fg:events} show data preset in fast5 file after basecalling  by Metrichor. For basecalled event, $model_state$ field says possible bases in the pore and $move$ field defines by how many bases have passed through the pore from previous event. 
+
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{./imgs/basecall_events.png}
+		\caption{Basecall information produced by Metrichor show in HDFView}
+		\label{fg:events}
+	\end{center}
+\end{figure}
+
+
+
+\section{Data preprocess}
+
+
+To help training process, raw signal is split into smaller blocks (signals of length 1000) that are used as inputs. For Metrichor basecalled event using $start$ field it is easy to calculate the block it falls into. With this, for each block we have output by Metrichor. 
+To correct errors produced by Metrichor and possibly increase quality of data, each read aligned to the reference using aligner GraphMap thet returns best position in the genome, hopefully the part of the genome from which read came from.
+Alignment part in the genome is used as target. Using cigar string returned by aligner we can correct Metrichor data and with that our test data per blocks. This process is shown in figure \ref{fg:data_correction}.
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{./imgs/train_data_correction.png}
+		\caption{Dataset preparation}
+		\label{fg:data_correction}
+	\end{center}
+\end{figure}
+
+
+To eliminate possibility of overfitting to the know reference, model is trained and tested on reads from different organisms. Due to limited ammount of public available nanopore sequence data, ecoli was \textit{devided} into two regions.
+Reads were split into into train and test portions depending in which region of ecoli they align to. 
+If read aligns inside first 70\% of the ecoli it is placed into train set and if it aligns in second portion (from 70\% to the end) it is placed into test set. Reads whose aligment overlaps train and test region are not used. Important to note that ecoli,and genome of majority of other bacteris, has cyclical genome so reads with alignment that wraps over edges are also discarded. Total train set consist of bla bla reads.
+Overview of the entire learning pipeline is shown in figure \ref{fg:train_pipe}.
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{./imgs/train_pipeline.png}
+		\caption{Overview of training pipeline}
+		\label{fg:train_pipe}
+	\end{center}
+\end{figure}
 \section{Deep Learning model}
 
 Final model is residual neural network consisting of 72 residual blocks depicted in figure \ref{fg:model_block}. This is a variant of arhitecture proposed in paper \cite{identitet} with the difference of ELU being used as activation instead of ReLU as it is reported\cite{resnet-elu} to speeds up learning process and improve accuracy as the depth increase. 
+without running more detailed analysis is difficult if this this actually results in performance benefit over simple ReLU .
 
+Each residual block contains 2 convolution layers making total number of convolution layers 144. Each convolutional layer in this models uses 64 kernels of 3. Because  sequenced read is always shorter than the raw signal, pooling with kernel size 2 is used every 48 layers resulting in reduction of dimensionality by factor 8. This is used to help training by reducing number of required blank labels in the output and computation effort. total number of parameters of this network 2M.
 
-
-It is difficult to discuss actual performance benefit over simple ReLU without more detailed analysis and comparison for this problem. 
-
-Each residual block contains 2 convolution layers making total number of convolution layers 144. Each convolutional layer in this models uses 64 kernels of 3. Pooling with kernel size 2 is used every 48 layers making output 8 times shorter than signal input. This is used to help training by reducing number of required blank labels in the output and reducing computation effort. 
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -402,12 +446,11 @@ Each residual block contains 2 convolution layers making total number of convolu
 \end{figure}
 
 
-\section{Training}
+Described CTC loss was used. Training the model is minimization of loss. It was done using Adam, stochastic gradient descent algorithm based on estimation of 1st and 2nd-order moments.
+It is often used as it offers fast and stable convergention. Default parameters of Adam were used (
+$\beta_1=0.9$ and $\beta_2=0.999$. Initial earning was set to 1e-3 with exponential decay. Batch size was set to 8 mostly due to limited hardware resources. As noisy batch that would cause gradients to explode, gradient is clipped to range [-2, 2].
+Figure \ref{fg:learn} shows learning curves during training. Occasional spikes of training loss be explained small batch size and presence of noise in the signal.
 
-To train described model we need to obtain dataset that consist of sample pairs $(X_i, Y_i)$ where $(X_i)$ is input signal and $Y_i$ is output sequence. 
-One of the mayor issues is determining correct output for given signal. One option is to use existing basecaller like Metrichor to determine output sequences. 
-
- 
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -418,58 +461,12 @@ One of the mayor issues is determining correct output for given signal. One opti
 \end{figure}
 
 
-Supervised learning so for need to specify dataset that for each input signal we need specify desired sequence of bases.
-{Xi, Yi} where len of X and len of Yi are not specified.
-
-For each input file, ground truth is not specified. If we use output of Metrihor or any other basecaller we limit our model to
-obtain accuracy of used basecaller in best case. We limit our train data to only sequencing data of know organisms (organisms with know reference genome) and try to correct data by aligning the read produced by metrichor or any other basecaller to reference genome. Alignment destination is used as target sequencing in training. 
-Using Metrichor basecalled data we can determine for each called event values such as start in signal, length of event, k-mer state in the pore and using move field change of k-mer from previous state. 
-
-Used dataset for training consists of raw signal from fast5 files split raw data into blocks of size $l$.
-For each block it is easy to determine basecalled events from Metrichor that belong to particular block using start information and from those events basecalled sequence. 
-
-
-$block\_index =  \frac{event_{start} * sampling\_rate}{block\_size}$
-
-Full basecalled sequence is aligned to the reference genome and alignment was obtained. For each block target sequence is determined from alignment information.
-
-Figure X shows how for given signal block
-
-
-Figure bla shows augmentation of data.
-
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.5\textwidth]{./imgs/basecalling.png}
-		\caption{Basecalling}
-		\label{fg:basecalling}
-	\end{center}
-\end{figure}
-
-Gradient descent is one of the most popular algorithms to perform optimization and by far the most common way to optimize neural networks.  Gradient descent is a way to minimize an objective function parameterized by a models parameters  by updating the parameters in the opposite direction of the gradient of the objective function to the parameters.
-
-Adam is a stochastic gradient descent algorithm based on estimation of 1st and 2nd-order moments.
-It is often used as it offers fast and stable convergention, even using default arguments proposed by authors.
-Learning rate 1e-3 with exponential decay 0.98 every 10000 steps, batch size was set to 8.
 
 
 
-To eliminate possibility of overfitting to the know reference, model is trained and tested on reads that align to different regions of reference genome and those regions should not overlap. Also test is conducted on separate set of sequencing data for different organism than the one used for training. 
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=1\textwidth]{./imgs/train_data_correction.png}
-		\caption{Dataset preparation}
-		\label{fg:data_correction}
-	\end{center}
-\end{figure}
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.7\textwidth]{./imgs/train_pipeline.png}
-		\caption{Overview of training pipeline}
-		\label{fg:train_pipe}
-	\end{center}
-\end{figure}
+
+
 \section{Evaluation methods}
 To evaluate trained model we base call test set, align those reads to reference and calculate various statistics on align data.
 From cigar string it is easy to calculate following:
@@ -556,7 +553,7 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 
 \section{Technologies}
 
-Overall solution was implemented in Python programing language. Described model is implemented using TensorFlow. It is an open source software library for numerical computation using data flow graphs developed by Google. TensorFlow, even tho is considered low-level framework offers implementations of higher level concepts (layers, losses, and optimizers) which makes it great for prototyping while keeping it modular and extensible for highly specific tasks as well.
+Overall solution was implemented in Python programing language. Described model is implemented using TensorFlow. It is an open source software library for numerical computation using data flow graphs developed by Google. TensorFlow, even though is considered low-level framework, offers implementations of many higher level concepts (layers, losses, and optimizers) which makes it great for prototyping while keeping it modular and extensible for highly specific tasks as well.
 
 TensorFlow offers efficient GPU implementations of various layers and losses but as of version 1.2 lacks GPU implementation of used CTC loss, so WARP-CTC\footnote{\url{https://github.com/baidu-research/warp-ctc}} was used. It offers both GPU and CPU implementations as well as bindings for TensorFlow.
 
