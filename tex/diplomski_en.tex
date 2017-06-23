@@ -610,6 +610,10 @@ match\_rate = \dfrac{n\_matches}{read\_lenght}
 
 
 For each basecaller, these rates are expressed as median, mean and variance of all aligned reads. To summarize the results, the median is used as a single value as it is more robust measure. Results are show in the table \ref{tbl:ecoli_rates} for ecoli dataset and table \ref{tbl:lambda_rates} for lambda. 
+Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both dataset show all basecallers being a bit bias towards deletions than insertions but this can be bias of aligner used (GraphMap). To eliminate that possibility, tests were repeated with BWA with almost same results. Results for BWA are show in tables
+\ref{tbl:ecoli_rates_bwa} and \ref{tbl:lambda_rates_bwa}.
+All results are consistent on both datasets using both aligners.
+
 
 
 
@@ -632,6 +636,22 @@ For each basecaller, these rates are expressed as median, mean and variance of a
 \end{table}
 
 \begin{table}[htb]
+	\caption{AlignmenBWAA t specifications of Ecoli R9 basecalled reads}
+	\label{tbl:lambda_rates_bwa}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		deepnano   &                  90.254762 &                      6.452852 &                       3.274420 &                     11.829965 \\
+		metrichor  &                  90.595441 &                      6.869543 &                       2.531646 &                      7.567381 \\
+		nanonet    &                  90.988989 &                      6.674760 &                     \textbf{  2.348552} &                      7.698530 \\
+		resdeep    &                 \textbf{ 91.470588} &                      \textbf{5.929204 }&                       2.477283 &                     \textbf{ 6.970362} \\
+		\bottomrule
+	\end{tabular}
+	
+\end{table}
+\begin{table}[htb]
 	\caption{Alignment specifications of lambda R9 basecalled reads}
 	\label{tbl:lambda_rates}
 	\centering
@@ -645,14 +665,33 @@ For each basecaller, these rates are expressed as median, mean and variance of a
 		resdeep    &                 \textbf{ 89.694482} &                     \textbf{ 7.238095} &                       \textbf{3.078796} &                     13.450292 \\
 		\bottomrule
 	\end{tabular}
+
+
+
+
 \end{table}
-
-
+\begin{table}[htb]
+	\caption{Alignment specifications of bwa lambda R9 basecalled reads}
+	\label{tbl:lambda_rates}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		
+		deepnano   &                  86.625973 &                     11.288361 &                       2.098225 &                     14.648308 \\
+		metrichor  &                  87.294093 &                     10.109186 &                       2.376476 &                      \textbf{9.645323 }\\
+		nanonet    &                  87.767037 &                     10.017598 &                       2.354248 &                     10.597232 \\
+		resdeep    &                 \textbf{ 89.049870} &                     \textbf{ 9.480883} &                       \textbf{1.615188 }&                     12.962441 \\
+		\bottomrule
+	\end{tabular}
+	
+\end{table}
 Distribution of these rates are shown using  histogram plot on figure \ref{fg:bla} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
 histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
 
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/kde_cigar_small.png}
 		\caption{Cigar operations histogram over relative position inside read}
@@ -660,14 +699,26 @@ histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is importan
 	\end{center}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[!htb]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_small.png}
 		\caption{Cigar operations histogram over relative position inside read}
 		\label{fg:lambda_kde}
 	\end{center}
 \end{figure}
-Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both dataset show all basecallers being a bit bias towards deletions than insertions but this can be bias of aligner used (GraphMap). Results are consistent on both datasets.
+
+Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insertions, and deletions are distributed across the reads. It is shown that mismatches and insertion occur more frequently at the ends. This is not only the case for the developed basecaller, but other basecallers show same property. This could be because context information is not available from both sides when edges are base called.
+
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{./imgs/operation_distributed_r9.png}
+		\caption{Cigar operations histogram over relative position inside of read}
+		\label{fg:cigar_op_dist}
+	\end{center}
+\end{figure}
+
+
+
 
 
 \subsection{Consensus}
@@ -717,51 +768,10 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 \end{figure}
 
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.7\textwidth]{./imgs/evaluation_pipeline.png}
-		\caption{Overview of evaluation pipeline}
-		\label{fg:eval_pipe}
-	\end{center}
-\end{figure}
 
 \section{Error rates per read}
 
 
-\begin{table}[htb]
-	\caption{Ecoli R9 basecalled read lengths in base pairs}
-	\label{tbl:ecoli_lens}
-	\centering
-
-\begin{tabular}{lrrr}
-	\toprule
-	{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
-	\midrule
-	deepnano   &        5526.5 &  8126.694000 &  7406.554786 \\
-	metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
-	nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
-	resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
-	\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[htb]
-	\caption{lambda R9 basecalled read lengths in base pairs}
-	\label{tbl:ecoli_lens}
-	\centering
-	
-\begin{tabular}{lccc}
-	\toprule
-	{} &  \thead{median} &    \thead{mean} &    \thead{std} \\
-	\midrule
-	deepnano   &        4740.0 &   4664.750000 &  2628.512543 \\
-	metrichor  &        5491.0 &   5482.952941 &  2748.446253 \\
-	nanonet    &        4931.5 &   4925.804878 &  2739.987512 \\
-	resdeep    &        5229.0 &   5138.764706 &  2605.958080 \\
-	\bottomrule
-\end{tabular}
-
-\end{table}
 
 
 
@@ -803,20 +813,65 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 
 \end{table}
 
-Figure \ref{fg:cigar_op_dist} shows how cigar operations are distributed across the reads. It is shown that missmatches and insertion occur more frequently at the ends.  This is not only the case for mincall, other basecallers show same property. Reason for basecalling bases could be caused by context information not being available from both sides. 
 
 \begin{figure}[!ht]
 	\begin{center}
-		\includegraphics[width=1\textwidth]{./imgs/operation_distributed_r9.png}
-		\caption{Cigar operations histogram over relative position inside read}
-		\label{fg:cigar_op_dist}
+		\includegraphics[width=0.7\textwidth]{./imgs/evaluation_pipeline.png}
+		\caption{Overview of evaluation pipeline}
+		\label{fg:eval_pipe}
 	\end{center}
 \end{figure}
 
 
 
+\section{Read lengths}
+Interesting thing to analyze are the lengths of basecalled reads for each tool. Developed tool output reads of lengths similar to metrhihor while other tools such as NanoNet for instance, basecall drastically shorter reads. More detail analysis of read length distributions is show using KDE plots on figure \ref{fg:r_lens} for both lambda and ecoli.
 
-\section{Consensus analysis}
+
+
+\begin{table}[htb]
+	\caption{Ecoli R9 basecalled read lengths in base pairs}
+	\label{tbl:ecoli_lens}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
+		\midrule
+		deepnano   &        5526.5 &  8126.694000 &  7406.554786 \\
+		metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
+		nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
+		resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+
+
+\begin{table}[htb]
+	\caption{lambda R9 basecalled read lengths in base pairs}
+	\label{tbl:ecoli_lens}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		{} &  \thead{median} &    \thead{mean} &    \thead{std} \\
+		\midrule
+		deepnano   &        4740.0 &   4664.750000 &  2628.512543 \\
+		metrichor  &        5491.0 &   5482.952941 &  2748.446253 \\
+		nanonet    &        4931.5 &   4925.804878 &  2739.987512 \\
+		resdeep    &        5229.0 &   5138.764706 &  2605.958080 \\
+		\bottomrule
+\end{tabular}
+\end{table}
+
+	\begin{figure}[!ht]
+		\begin{center}
+			\includegraphics[width=1\textwidth]{./imgs/lens.png}
+			\caption{Overview of evaluation pipeline}
+			\label{fg:r_lens}
+		\end{center}
+	\end{figure}
+	
 
 %TODO ZAKLJUCAK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
