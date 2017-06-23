@@ -733,16 +733,13 @@ Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insert
 
 
 
-\subsection{Consensus}
+\section{Consensus}
 
 Only aligning the reads to the reference and calculating described error rates and match rates per read could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner doesn't discard short and highly ambiguous reads) will always return perfect alignment as certainly nucleotide "A" is present in the reference. This model has perfect match rate with non-existent missmatches, insertions, and deletions.  The second approach is used, in addition to the first, to give a more rigorous comparison.
 
 Idea is to check if the reconstruction of the reference is possible from the reads and how closely does it match the original reference. Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition and majority has to agree on both length and the inserted bases. Figure \ref{fg: consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
 Percentage of covered base is calculated to show much of reference genome is covered by at least one read. Similarly as before, match rate, mismatch rate, insertion and deletion rates are calculated but this time for whole consensus sequence. 
 
-
-Results are shown in the table. 
-For ecoli, developed model shows results promising results comparable with Metrichor in all aspects (matches, mismatches, insertions, and deletions). 
 
 \begin{equation}
 \begin{gathered}
@@ -770,6 +767,9 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 \end{gathered}
 \end{equation}
 
+Results are shown in the table. 
+For ecoli, developed model shows results promising results comparable, if not better, with Metrichor in all aspects (matches, mismatches, insertions, and deletions). Lambda test shows that the results of the developed model fairly matches Metrichor. 
+
 
 
 \begin{figure}[!ht]
@@ -783,22 +783,19 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 
 
 
-
-
-
 \begin{table}[htb]
 	\caption{Consensus specifications of Ecoli R9 basecalled reads}
 	\label{tbl:spec}
 	\centering
 
-\begin{tabular}{lcccc}
+\begin{tabular}{lcccccc}
 	\toprule
-	{} &  \thead{Match \%} &  \thead{Snp \%} &  \thead{Insertion \%} &  \thead{Deletion \%} \\
+	{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
 	\midrule
-	deepnano  &      98.874222 &     1.004407 &           0.121371 &          0.904092 \\
-	metrichor &      99.122300 &     0.746359 &           0.131342 &          0.629992 \\
-	nanonet   &      97.969082 &     1.570034 &           0.460885 &          1.515800 \\
-	resdeep   &      99.236079 &     0.647438 &           0.116482 &          0.550985 \\
+	deepnano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
+	metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
+	nanonet   &                  1414237.0 &                      1385515.0 &          97.9691 &         1.5700 &               0.4609 &              1.5158 \\
+	resdeep   &                  1517828.0 &                      1506233.0 &          \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
 	\bottomrule
 \end{tabular}
 
@@ -809,27 +806,21 @@ deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 	\label{tbl:spec}
 	\centering
 
-\begin{tabular}{lcccc}
+\begin{tabular}{lcccccc}
 	\toprule
-	{} &  \thead{Match \%} &  \thead{Snp \%} &  \thead{Insertion \%} &  \thead{Deletion \%} \\
+	{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
 	\midrule
-	deepnano  &      99.344256 &     0.643333 &           0.012412 &          0.264780 \\
-	metrichor &      99.562607 &     0.418824 &           0.018569 &          0.146485 \\
-	nanonet   &      99.442586 &     0.540898 &           0.016516 &          0.196127 \\
-	resdeep   &      99.541180 &     0.440219 &           0.018601 &          0.297613 \\
+	deepnano  &                    48342.0 &                        48025.0 &          99.3443 &         0.6433 &               \textbf{0.0124} &              0.2648 \\
+	metrichor &                    48469.0 &                        48257.0 &          \textbf{99.5626} &         \textbf{0.4188} &               0.0186 &              \textbf{0.1465} \\
+	nanonet   &                    48438.0 &                        48168.0 &          99.4426 &         0.5409 &               0.0165 &              0.1961 \\
+	resdeep   &                    48385.0 &                        48163.0 &          99.5412 &         0.4402 &               0.0186 &              0.1976 \\
 	\bottomrule
 \end{tabular}
-
 \end{table}
 
+All model show slight bias towards deletions than insertions but this may actually be limitation of technology it is reported that deletion and mismatch rates for nanopore data are generally higher than insertion rates\cite{graphmap}.
 
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.7\textwidth]{./imgs/evaluation_pipeline.png}
-		\caption{Overview of evaluation pipeline}
-		\label{fg:eval_pipe}
-	\end{center}
-\end{figure}
+
 
 
 
@@ -884,6 +875,15 @@ Interesting thing to analyze are the lengths of basecalled reads for each tool. 
 \section{Speeds}
 deep network with milions of parameters and 144layers
 
+\subsection{Evaluation pipeline}
+Entire evaluation pipeline is shown in figure \ref{fg:eval_pipe}. For aligment purposes GraphMap. Convertion between SAM and its binary variant BAM as well as generation of mpileup was done using SAMTools.
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.7\textwidth]{./imgs/evaluation_pipeline.png}
+		\caption{Overview of evaluation pipeline}
+		\label{fg:eval_pipe}
+	\end{center}
+\end{figure}
 
 %TODO ZAKLJUCAK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -913,7 +913,7 @@ R9.5 data and new 1D2 reads are just becoming available.
 Metrichor was only available basecaller and was offered as a cloud service. Without added support for newer sequencing data, this model has limited application. It can be used as a demonstration of a different approach to base calling which yields promising results. 
 As newer versions of basecallers by Oxford Nanopore do not support for data sequenced with older chemistry, this tool could be used to re-basecall all sequencing data and possibly improve results in some application.
 
-Future work involves training on publicly available R9.4 data (loman)(zika) and R9.5 when it becomes available. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper that shows excellent results in both speed and accuracy in tasks of language translation. 
+Future work involves training on publicly available R9.4 data (loman)(zika) and R9.5 when it becomes available. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper that shows excellent results in both speed and accuracy in tasks of language translation. SELU je jako jeben za probat jos isto that makes Batch normalization layer obsolete[link]. 
 
 
 
