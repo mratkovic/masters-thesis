@@ -57,7 +57,7 @@ Base calling is a process assigning sequence of nucleotides (letters) to the raw
 
 
 \section{Objectives}
-The goal of this thesis is to show that the accuracy of base calling is dependent on the underlying software and can be improved using machine learning methods. A novel approach for base calling of raw data using convolutional neural networks is introduced.
+The goal of this thesis is to show that the accuracy sequencing data is not only limited by sequencing technology, but also by the underlying software used for base calling and can be further improved by using different machine and deep learning concepts. A novel approach for base calling of raw data using convolutional neural networks is introduced.
 
 \section{Organization}
 \indent Chapter 2 gives more detailed explanation of the problem, background on nanopore sequencing and overview of state-of-the-art basecallers.
@@ -157,7 +157,7 @@ It is available to the Nanopore Community served as a binary. The source code of
 \textbf{Nanonet}\footnote{\url{https://github.com/nanoporetech/nanonet/}} uses the same neural network that is used in Albacore but it is continually under development and does contain features such as error handling or logging needed for production use. It uses CURRENNT library for running neural networks.
 
 
-\textbf{Scrappie}\footnote{\url{https://github.com/nanoporetech/scrappie}} is another basecaller by Oxford Nanopore Technologies. Similar to NanoNet, it is the platform for ongoing development. Scrappie is reported to be the first basecaller  that specifically address homopolymer basecalling. It became publicly available just recently in June, 2017.
+\textbf{Scrappie}\footnote{\url{https://github.com/nanoporetech/scrappie}} is another basecaller by Oxford Nanopore Technologies. Similar to Nanonet, it is the platform for ongoing development. Scrappie is reported to be the first basecaller  that specifically address homopolymer base calling. It became publicly available just recently in June, 2017.
 
 \subsection{Third-party}
 
@@ -171,7 +171,7 @@ It is available to the Nanopore Community served as a binary. The source code of
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Methods}
-The process of basecalling can be represented as the problem of machine translation where a sentence is translated from one language to another. For base calling, the sequence of events or current measurements is translated to the sequence of nucleotides (letters A, C, T, G).
+The process of base calling can be represented as the problem of machine translation where a sentence is translated from one language to another. For base calling, the sequence of events or current measurements is translated to the sequence of nucleotides (letters A, C, T, G).
 
 This section explains some key concepts in deep learning needed to understand the final model. It gives general idea behind recurrent neural networks used in a majority of existing basecallers and possible difficulties that serve as motivation for the different approach, usage of convolutional neural networks. 
 
@@ -409,7 +409,7 @@ Baseced data by Metrichor are used to train our model.
 \end{savenotes}
 
 
- Figure \ref{fg:events} show data preset in FAST5 file after basecalling by Metrichor. For basecalled event, $model\_state$ field contains possible sequence of bases in the pore and $move$ field defines by how many bases have passed through the pore between two consequitive events. 
+ Figure \ref{fg:events} show data preset in FAST5 file after base calling by Metrichor. For basecalled event, $model\_state$ field contains possible sequence of bases in the pore and $move$ field defines by how many bases have passed through the pore between two consequitive events. 
 
 
 \begin{figure}[!ht]
@@ -421,7 +421,7 @@ Baseced data by Metrichor are used to train our model.
 \end{figure}
 
 \section{Technologies}
-
+\label{sec:tech}
 Overall solution was implemented in Python programing language. Described model is implemented using TensorFlow. It is an open source software library for numerical computation using data flow graphs developed by Google. TensorFlow, even though is considered low-level framework, offers implementations of many higher level concepts (layers, losses, and optimizers) which makes it great for prototyping while keeping it modular and extensible for highly specific tasks as well.
 
 TensorFlow offers efficient GPU implementations of various layers and losses but as of version 1.2 lacks GPU implementation of used CTC loss, so WARP-CTC\footnote{\url{https://github.com/baidu-research/warp-ctc}} was used. It offers both GPU and CPU implementations as well as bindings for TensorFlow.
@@ -439,7 +439,7 @@ Training and all evaluations were done on the server with  \textit{Intel(R) Xeon
 All developed and used code, including utility scripts is publicly available on \textit{GitHub}\footnote{\url{https://goo.gl/RVeyjU}} under the \textit{MIT Licence}.
 
 \section{File formats}
-This section will give brief overview of file formats used and information present in them.
+Descriptions of various file formats used later in descriptions of preprocessing of training data and evaluation are given in this section.
 \subsubsection{FASTA}
 
 
@@ -462,7 +462,7 @@ Reads are usualy stored in FASTQ file format. Each read in the file is stored in
 	\item character "$+$" character and is optionally followed by the same sequence identifier and description.
 	\item quality score for each base
 \end{enumerate}
-Quality score is generated during basecalling that can be used by aligners. Quality is represented by ASCII printable characters where
+Quality score is generated during base calling that can be used by aligners. Quality is represented by ASCII printable characters where
 the character "$!$" represents the lowest quality while "\textasciitilde" is the highest. Figure \ref{fg:fq} shows example of read stored in FASTQ file format.
 \begin{figure}[!ht]
 	\begin{center}
@@ -552,19 +552,11 @@ Training process is implemented in \textit{producers/consumer} pattern with sync
 
 
 
-
-
-
-
-
-
-
-
 %TODO REZULTATI
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Results}
-Developed was compared with other available basecallers that support R9 chemisty. This includes third-party basically DeepNano and official basecallers by Oxford Nanopore (cloud-based Metrichor and NanoNet).
+Developed was compared with other available basecallers that support R9 chemisty. This includes third-party basically DeepNano and official basecallers by Oxford Nanopore (cloud-based Metrichor and Nanonet).
 Fact that ground truth is not actually known makes evaluation difficult. Two approaches were used to get clearer information about each basecaller.
 In all tables and figures, developed model is addressed as \textit{resdeep} simply due to fact it is deep residual neural network.
 
@@ -572,11 +564,13 @@ In all tables and figures, developed model is addressed as \textit{resdeep} simp
 
 \section{Error rates per read}
 
-Basecalled reads are aligned to the reference using GraphMap and alignments are analyzed. If the whole sequencing is done correctly and quality basecaller is used, all reads should align to the reference. Missmatches, insertions and deletions, in that case, should be due to limitations of sequencing technology and noise in the signal.
+Basecalled reads are aligned to the reference using GraphMap and alignments are analyzed. If the whole sequencing is done correctly and quality basecaller is used, all reads should align to the reference. Mismatches, insertions, and deletions, in that case, should be due to limitations of sequencing technology and noise in the signal.
 
-To get conclusive results this is done on both test set of the ecoli dataset as well as lambda dataset. 
+To get reliable results, this is done on both test set of the ecoli dataset and lambda dataset. 
 A portion of the read length that aligns as correctly is called match\_rate. Same goes for mismatches and insertions. 
-Sum of all matches, mismatches, and insertions is equal to the reads length \ref{eq:read_len}. Deletions are not part of the read as they are the absence of base that occurs in the reference. Deletion\_rate is defined as a number of deletions in the alignment over the length of the aligned read. All expressions can be found bellow.
+Sum of all matches, mismatches, and insertions is equal to the reads length \ref{eq:read_len}. Deletions are not part of the read as they are the absence of base that occurs in the reference. Deletion rate is defined as a total number of deletions in the alignment over the length of the aligned read. 
+
+Expressions used to calculate alignment operation rates:
 
 \begin{equation}
 \begin{gathered}
@@ -599,29 +593,31 @@ missmatch\_rate = \dfrac{n\_missmatches}{read\_lenght}
 insertion\_rate = \dfrac{n\_insertions}{read\_lenght}
 \end{gathered}
 \end{equation}
+
+\begin{equation}
+\begin{gathered}
+match\_rate  + snp\_rate + insertion\_rate = 1
+\end{gathered}
+\end{equation}
+
+
 \begin{equation}
 \begin{gathered}
 deletion\_rate = \dfrac{n\_deletion}{read\_lenght}
 \end{gathered}
 \end{equation}
-\begin{equation}
-\begin{gathered}
-match\_rate = \dfrac{n\_matches}{read\_lenght}
-\end{gathered}
-\end{equation}
 
 
-For each basecaller, these rates are expressed as median, mean and variance of all aligned reads. To summarize the results, the median is used as a single value as it is more robust measure and in the case of skewed distributions like these even more informative.  Results are show in the table \ref{tbl:ecoli_rates} for ecoli dataset and table \ref{tbl:lambda_rates} for lambda. 
-Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both dataset show all basecallers being a bit bias towards deletions than insertions but this can be bias of aligner used (GraphMap). To eliminate that possibility, tests were repeated with BWA with almost same results. Results for BWA are show in tables
-\ref{tbl:ecoli_rates_bwa} and \ref{tbl:lambda_rates_bwa}.
-All results are consistent on both datasets using both aligners.
 
+For each basecaller, median, mean and variance of all aligned reads are calculated. To summarize the results, the median is used as a single value as it is robust measure and even more informative in the case of skewed distributions like these.  Results expressed as percentages are shown in the table \ref{tbl:ecoli_rates} for ecoli and table \ref{tbl:lambda_rates} for lambda dataset. 
 
+Developed model show promising results by having better match rate than the others, smaller mismatch rate. Both datasets show all basecallers being biased towards deletions than insertions but this possibly is the bias of the used aligner. To eliminate that possibility, tests were repeated using \textit{BWA mem} aligner\footnote{https://github.com/lh3/bwa} with almost identical results. Results using BWA are shown in Tables
+\ref{tbl:ecoli_rates_bwa} and \ref{tbl:lambda_rates_bwa}. Results are consistent on both datasets using both aligners.
 
 
 
 \begin{table}[htb]
-	\caption{Alignment specifications of Ecoli R9 basecalled reads}
+	\caption{Alignment specifications of Ecoli R9 basecalled reads using GraphMap}
 	\label{tbl:ecoli_rates}
 	\centering
 	\begin{tabular}{lcccc}
@@ -629,61 +625,61 @@ All results are consistent on both datasets using both aligners.
 		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
 		\midrule
 		
-		deepnano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
-		metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
-		nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
+		DeepNano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
+		Metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
+		Nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
 		resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
 		\bottomrule
 	\end{tabular}
 \end{table}
 
 \begin{table}[htb]
-	\caption{AlignmenBWAA t specifications of Ecoli R9 basecalled reads}
-	\label{tbl:lambda_rates_bwa}
+	\caption{Alignment specifications of of Ecoli R9 basecalled reads using BWA mem}
+	\label{tbl:ecoli_rates_bwa}
 	\centering
 	\begin{tabular}{lcccc}
 		\toprule
 		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
 		\midrule
-		deepnano   &                  90.254762 &                      6.452852 &                       3.274420 &                     11.829965 \\
-		metrichor  &                  90.595441 &                      6.869543 &                       2.531646 &                      7.567381 \\
-		nanonet    &                  90.988989 &                      6.674760 &                     \textbf{  2.348552} &                      7.698530 \\
+		DeepNano   &                  90.254762 &                      6.452852 &                       3.274420 &                     11.829965 \\
+		Metrichor  &                  90.595441 &                      6.869543 &                       2.531646 &                      7.567381 \\
+		Nanonet    &                  90.988989 &                      6.674760 &                     \textbf{  2.348552} &                      7.698530 \\
 		resdeep    &                 \textbf{ 91.470588} &                      \textbf{5.929204 }&                       2.477283 &                     \textbf{ 6.970362} \\
 		\bottomrule
 	\end{tabular}
 	
 \end{table}
 \begin{table}[htb]
-	\caption{Alignment specifications of lambda R9 basecalled reads}
+	\caption{Alignment specifications of of Ecoli R9 basecalled reads using GraphMap}
 	\label{tbl:lambda_rates}
 	\centering
 	\begin{tabular}{lcccc}
 		\toprule
 		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
 		\midrule
-		deepnano   &                  86.997687 &                      9.623494 &                       3.442490 &                     16.052830 \\
-		metrichor  &                  87.714988 &                      7.835052 &                       4.093851 &                     \textbf{10.757491} \\
-		nanonet    &                  88.415611 &                      8.178372 &                       3.629653 &                     11.793022 \\
+		DeepNano   &                  86.997687 &                      9.623494 &                       3.442490 &                     16.052830 \\
+		Metrichor  &                  87.714988 &                      7.835052 &                       4.093851 &                     \textbf{10.757491} \\
+		Nanonet    &                  88.415611 &                      8.178372 &                       3.629653 &                     11.793022 \\
 		resdeep    &                 \textbf{ 89.694482} &                     \textbf{ 7.238095} &                       \textbf{3.078796} &                     13.450292 \\
 		\bottomrule
 	\end{tabular}
-
-
-
-
+	
+	
+	
+	
 \end{table}
 \begin{table}[H]
-	\caption{Alignment specifications of bwa lambda R9 basecalled reads}
-	\label{tbl:lambda_rates}
+	\caption{Alignment specifications of of lambda R9 basecalled reads using BWA mem}
+	\label{tbl:lambda_rates_bwa}
 	\centering
 	\begin{tabular}{lcccc}
 		\toprule
 		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
 		\midrule
 		
-		deepnano   &                  86.625973 &                     11.288361 &                       2.098225 &                     14.648308 \\
-		metrichor  &                  87.294093 &                     10.109186 &                       2.376476 &                      \textbf{9.645323 }\\
-		nanonet    &                  87.767037 &                     10.017598 &                       2.354248 &                     10.597232 \\
+		DeepNano   &                  86.625973 &                     11.288361 &                       2.098225 &                     14.648308 \\
+		Metrichor  &                  87.294093 &                     10.109186 &                       2.376476 &                      \textbf{9.645323 }\\
+		Nanonet    &                  87.767037 &                     10.017598 &                       2.354248 &                     10.597232 \\
 		resdeep    &                 \textbf{ 89.049870} &                     \textbf{ 9.480883} &                       \textbf{1.615188 }&                     12.962441 \\
 		\bottomrule
 	\end{tabular}
@@ -691,13 +687,13 @@ All results are consistent on both datasets using both aligners.
 \end{table}
 
 
-Distribution of these rates are shown using  histogram plot on figure \ref{fg:hist} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins. This results in less cluttered comparison. 
-histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
+Distribution of these rates are shown using  histogram plot on figure \ref{fg:hist} and the KDE (kernel density estimate) plot (figures \ref{fg:ecoli_kde} and \ref{fg:lambda_kde}). Like the histogram, the KDE plot encodes the density of observations, but curve approximation is used instead of bins resulting in less cluttered comparison. 
+It is important to note that lambda is small dataset (around 80 reads) and more samples are needed to get a better approximation of distribution.
 
 \begin{figure}[!htb]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/hist_20.png}
-		\caption{Cigar operations histogram over relative position inside read}
+		\caption{Histogram showing distribution of percentage of aligment operations for ecoli}
 		\label{fg:hist}
 	\end{center}
 \end{figure}
@@ -705,26 +701,34 @@ histogram plots for lambda are show on plot \ref{fg:lambda_hist}. It is importan
 \begin{figure}[!htb]
 	\begin{center}
 		\includegraphics[width=0.8\textwidth]{./imgs/results/ecoli/kde_cigar_lines.png}
-		\caption{Cigar operations histogram over relative position inside read}
+		\caption{KDE plot for distribution of percentage of aligment operations for ecoli}
 		\label{fg:ecoli_kde}
 	\end{center}
 \end{figure}
 
 \begin{figure}[!htb]
 	\begin{center}
-		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_lines.png}
-		\caption{Cigar operations histogram over relative position inside read}
-		\label{fg:lambda_kde}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/hist_20.png}
+		\caption{Histogram showing distribution of percentage of aligment operations for lambda}
+		\label{fg:hist}
 	\end{center}
 \end{figure}
 
+\begin{figure}[!htb]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/results/lambda/kde_cigar_lines.png}
+		\caption{KDE plot for distribution of percentage of aligment operations for lambda}
+		\label{fg:lambda_kde}
+	\end{center}
+\end{figure}
+\FloatBarrier
 
-Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insertions, and deletions are distributed across the reads. It is shown that mismatches and insertion occur more frequently at the ends. This is not only the case for the developed basecaller, but other basecallers show same property. This could be because context information is not available from both sides when edges are base called.
+The histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insertions, and deletions are distributed across the read. It is shown that mismatches and insertion occur more frequently at the ends. This is not only the case for the developed basecaller, but other basecallers show the same property. This could be due to lack of context information from both sides when edges are base called.
 
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=1\textwidth]{./imgs/operation_distributed_r9.png}
-		\caption{Cigar operations histogram over relative position inside of read}
+		\caption{Histogram of alignment operations over relative position inside of read}
 		\label{fg:cigar_op_dist}
 	\end{center}
 \end{figure}
@@ -734,18 +738,24 @@ Histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, insert
 
 
 \section{Consensus}
+Described error rates and match rates obtained from alignment of reads to the reference could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner does not discard short and highly ambiguous reads) will always return perfect alignment as nucleotide "A" is certainly present in the reference. This model would have a perfect match rate with non-existent mismatches, insertions, and deletions.  The second approach is used, in addition to the first, to give a more rigorous comparison.
 
-Only aligning the reads to the reference and calculating described error rates and match rates per read could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner doesn't discard short and highly ambiguous reads) will always return perfect alignment as certainly nucleotide "A" is present in the reference. This model has perfect match rate with non-existent missmatches, insertions, and deletions.  The second approach is used, in addition to the first, to give a more rigorous comparison.
-
-Idea is to check if the reconstruction of the reference is possible from the reads and how closely does it match the original reference. Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition and majority has to agree on both length and the inserted bases. Figure \ref{fg: consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
-Percentage of covered base is calculated to show much of reference genome is covered by at least one read. Similarly as before, match rate, mismatch rate, insertion and deletion rates are calculated but this time for whole consensus sequence. 
+Idea is to check if the reconstruction of the reference is possible from the reads and how closely does it match the original reference. Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition,  the majority has to agree on both length and the inserted bases. Figure \ref{fg:consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
 
 
-\begin{equation}
-\begin{gathered}
-identity\_percentage =  100 * \dfrac{n\_correct\_bases}{reference\_lenght}
-\end{gathered}
-\end{equation}
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=0.8\textwidth]{./imgs/consnesus.png}
+		\caption{Consensus from pileup}
+		\label{fg:consensus}
+	\end{center}
+\end{figure}
+
+
+Similarly, as before, match rate, mismatch rate, insertion and deletion rates are calculated but this time for whole consensus sequence.  
+
+
+
 \begin{equation}
 \begin{gathered}
 match\_rate = \dfrac{n\_correct\_bases}{consensus\_lenght}
@@ -761,72 +771,63 @@ snp\_rate = \dfrac{n\_snp}{consensus\_lenght}
 insertion\_rate = \dfrac{n\_insertions}{consensus\_lenght}
 \end{gathered}
 \end{equation}
+
+\begin{equation}
+\begin{gathered}
+match\_rate  + snp\_rate + insertion\_rate = 1
+\end{gathered}
+\end{equation}
+
+
 \begin{equation}
 \begin{gathered}
 deletion\_rate = \dfrac{n\_deletion}{consensus\_lenght}
 \end{gathered}
 \end{equation}
 
-Results are shown in the table. 
-For ecoli, developed model shows results promising results comparable, if not better, with Metrichor in all aspects (matches, mismatches, insertions, and deletions). Lambda test shows that the results of the developed model fairly matches Metrichor. 
-
-
-
-\begin{figure}[!ht]
-	\begin{center}
-		\includegraphics[width=0.8\textwidth]{./imgs/consnesus.png}
-		\caption{Consensus from pileup}
-		\label{fg:consensus}
-	\end{center}
-\end{figure}
-
-
-
+Results are shown in the tables \ref{tbl:spec_ecoli}  for ecoli and \ref{tbl:spec_lambda} for lambda. 
+Developed model shows results promising results, comparable with Metrichor in all aspects (matches, mismatches, insertions, deletions and the total length of the consensus sequence) for lambda and show even better results from ecoli. 
 
 \begin{table}[htb]
 	\caption{Consensus specifications of Ecoli R9 basecalled reads}
-	\label{tbl:spec}
+	\label{tbl:spec_ecoli}
 	\centering
-
-\begin{tabular}{lcccccc}
-	\toprule
-	{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
-	\midrule
-	deepnano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
-	metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
-	nanonet   &                  1414237.0 &                      1385515.0 &          97.9691 &         1.5700 &               0.4609 &              1.5158 \\
-	resdeep   &                  1517828.0 &                      1506233.0 &          \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
-	\bottomrule
-\end{tabular}
-
+	
+	\begin{tabular}{lcccccc}
+		\toprule
+		{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+		\midrule
+		DeepNano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
+		Metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
+		Nanonet   &                  1414237.0 &                      1385515.0 &          97.9691 &         1.5700 &               0.4609 &              1.5158 \\
+		resdeep   &                  1517828.0 &                      1506233.0 &          \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
+		\bottomrule
+	\end{tabular}
+	
 \end{table}
 
 \begin{table}[htb]
 	\caption{Consensus specifications of lambda R9 basecalled reads}
-	\label{tbl:spec}
+	\label{tbl:spec_lambda}
 	\centering
-
-\begin{tabular}{lcccccc}
-	\toprule
-	{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
-	\midrule
-	deepnano  &                    48342.0 &                        48025.0 &          99.3443 &         0.6433 &               \textbf{0.0124} &              0.2648 \\
-	metrichor &                    48469.0 &                        48257.0 &          \textbf{99.5626} &         \textbf{0.4188} &               0.0186 &              \textbf{0.1465} \\
-	nanonet   &                    48438.0 &                        48168.0 &          99.4426 &         0.5409 &               0.0165 &              0.1961 \\
-	resdeep   &                    48385.0 &                        48163.0 &          99.5412 &         0.4402 &               0.0186 &              0.1976 \\
-	\bottomrule
-\end{tabular}
+	
+	\begin{tabular}{lcccccc}
+		\toprule
+		{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+		\midrule
+		DeepNano  &                    48342.0 &                        48025.0 &          99.3443 &         0.6433 &               \textbf{0.0124} &              0.2648 \\
+		Metrichor &                    48469.0 &                        48257.0 &          \textbf{99.5626} &         \textbf{0.4188} &               0.0186 &              \textbf{0.1465} \\
+		Nanonet   &                    48438.0 &                        48168.0 &          99.4426 &         0.5409 &               0.0165 &              0.1961 \\
+		resdeep   &                    48385.0 &                        48163.0 &          99.5412 &         0.4402 &               0.0186 &              0.1976 \\
+		\bottomrule
+	\end{tabular}
 \end{table}
 
-All model show slight bias towards deletions than insertions but this may actually be limitation of technology it is reported that deletion and mismatch rates for nanopore data are generally higher than insertion rates\cite{graphmap}.
-
-
-
+All models show a slight bias towards deletions than insertions, but this may be the limitation of technology as it has been reported that deletion and mismatch rates for nanopore data are ordinarily higher than insertion rates\cite{sovic}.
 
 
 \section{Read lengths}
-Interesting thing to analyze are the lengths of basecalled reads for each tool. Developed tool output reads of lengths similar to metrhihor while other tools such as NanoNet for instance, basecall drastically shorter reads. More detail analysis of read length distributions is show using KDE plots on figure \ref{fg:r_lens} for both lambda and ecoli.
-
+The lengths of basecalled reads for each tool are interesting to analyze. Developed tool output reads of lengths similar to Metrichor while other tools, such as Nanonet, for instance, basecall reads that are significantly shorter. Detailed analysis of read length distributions is shown using KDE plots on figure \ref{fg:r_lens} for both lambda and ecoli.
 
 
 \begin{table}[htb]
@@ -838,9 +839,9 @@ Interesting thing to analyze are the lengths of basecalled reads for each tool. 
 		\toprule
 		{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
 		\midrule
-		deepnano   &        5526.5 &  8126.694000 &  7406.554786 \\
-		metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
-		nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
+		DeepNano   &        5526.5 &  8126.694000 &  7406.554786 \\
+		Metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
+		Nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
 		resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
 		\bottomrule
 	\end{tabular}
@@ -856,27 +857,50 @@ Interesting thing to analyze are the lengths of basecalled reads for each tool. 
 		\toprule
 		{} &  \thead{median} &    \thead{mean} &    \thead{std} \\
 		\midrule
-		deepnano   &        4740.0 &   4664.750000 &  2628.512543 \\
-		metrichor  &        5491.0 &   5482.952941 &  2748.446253 \\
-		nanonet    &        4931.5 &   4925.804878 &  2739.987512 \\
+		DeepNano   &        4740.0 &   4664.750000 &  2628.512543 \\
+		Metrichor  &        5491.0 &   5482.952941 &  2748.446253 \\
+		Nanonet    &        4931.5 &   4925.804878 &  2739.987512 \\
 		resdeep    &        5229.0 &   5138.764706 &  2605.958080 \\
 		\bottomrule
-\end{tabular}
+	\end{tabular}
 \end{table}
 
-	\begin{figure}[!ht]
-		\begin{center}
-			\includegraphics[width=1\textwidth]{./imgs/lens.png}
-			\caption{Overview of evaluation pipeline}
-			\label{fg:r_lens}
-		\end{center}
-	\end{figure}
+\begin{figure}[!ht]
+	\begin{center}
+		\includegraphics[width=1\textwidth]{./imgs/lens.png}
+		\caption{Overview of evaluation pipeline}
+		\label{fg:r_lens}
+	\end{center}
+\end{figure}
 
-\section{Speeds}
-deep network with milions of parameters and 144layers
+\section{Base calling speeds}
+Table \ref{tbl:speeds} show base calling speeds of all tools. Metrichor is not shown in the table because it is cloud-based service and real execution time is unknown. Tests for all other basecallers were run under same conditions on hardware described in section \ref{sec:tech}. All tested tools offer parallelized base calling so a number of jobs(threads) during testing was set to 32. Both the developed model and Nanonet provide GPU support for base calling, while DeepNano is limited for CPU only.
 
-\subsection{Evaluation pipeline}
-Entire evaluation pipeline is shown in figure \ref{fg:eval_pipe}. For aligment purposes GraphMap. Convertion between SAM and its binary variant BAM as well as generation of mpileup was done using SAMTools.
+Developed tool has shown faster base calling times in both CPU and GPU group. Differences in base calling speeds for ecoli and lambda datasets do exist, but they are not substantial and may be contributed to the different length of the reads and the different total number of reads in datasets. 
+
+\begin{table}[htb]
+	\caption{Base calling speeds mesured in \textit{base pairs per second}}
+	\label{tbl:speeds}
+	\centering
+	
+	\begin{tabular}{lcc}
+		\toprule
+		{} &  \thead{ecoli (bp/s)} &  \thead{lambda (bp/s)} \\ 
+		\midrule
+		resdeep (CPU)  &               \textbf{1174.28} &              \textbf{ 1363.340 }\\
+		Nanonet (CPU)  &                856.01 &                897.499 \\
+		DeepNano (CPU) &                626.99 &                692.370 \\
+		\midrule
+		resdeep (GPU)  &              \textbf{ 6571.76 }&              \textbf{ 6140.300} \\
+		Nanonet (GPU)  &               3828.39 &               3787.510 \\
+		\bottomrule
+	\end{tabular}
+	
+\end{table}
+
+\section{Evaluation pipeline}
+Entire evaluation pipeline is shown in figure \ref{fg:eval_pipe}.  GraphMap was used for alignment purposes and SAMTools for conversion between SAM and its binary variant BAM as well as a generation of mpileup.
+
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.7\textwidth]{./imgs/evaluation_pipeline.png}
@@ -885,54 +909,50 @@ Entire evaluation pipeline is shown in figure \ref{fg:eval_pipe}. For aligment p
 	\end{center}
 \end{figure}
 
-%TODO ZAKLJUCAK
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Conclusion}
-Conclusion.
-
-The main reason you might want to consider convolutions in your work is because they are fast. I think that’s important to make research and exploration faster and more efficient. Faster networks shorten our feedback cycles.
-
-Most of the tasks I’ve encountered with text end up having the same requirement of the architecture: Maximize the receptive field while maintaining an adequate flow of gradients
-
-When I set out to write this I only had my own experience and Google’s ByteNet to back this claim up. Just this week, Facebook published their fully convolutional translation model and reported a 9X speed up over LSTM based models.
 
 
 
+The goal of this thesis was to show that usage of convolution neural networks can potentially replace RNNs in the analysis of sequencing data by offering better results as well as faster execution.
+On all tests, proposed model show excellent improvement in the results compared with official basecallers Matrichor and experimental Nanonet as well as third-party tool DeepNano. To provide definite proof of this claim, the model needs to be tested on larger datasets from different sequencing runs for multiple organisms.
+
+All test are done on data for R9 chemistry, but the developed code could easily be adjusted and trained on R9.4 and newest R9.5 data when it becomes publicly available.
+It would be interesting to see how well this approach works compare to basecaller Scrappie by Oxford Nanopore that addresses detection of homopolymers.
+
+Currently, without support for newer sequencing data, this model has limited application. 
+It can be used as a demonstration of a different approach to base calling which yields promising results.  As newer versions of basecallers by Oxford Nanopore do not offer support for data sequenced with older chemistry, this tool can be used to re-basecall that data and possibly improve the quality of the results for different applications.
+
+Future work includes experiments with recently proposed \textit{scaled exponential linear units} (SELU)\cite{selu} that eliminates the need for normalization techniques such as batch normalization. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper\cite{facebook} showing excellent results in both speed and accuracy, for tasks of language translation. 
 
 
 
-On all tests developed model show excellent results. To prove this, this model needs to be tested on larger datasets from different sequencing runs of various organisms.
-
-
-All test are done on data for R9 chemistry. Separate model using same architecture and loss can be trained on newer data.  Publicly available data R9.4 can be found here. It would be interesting to see how well can this approach compare to other reacently released models by Oxford Nanopore.
-
-R9.5 data and new 1D2 reads are just becoming available. 
-
-
-Metrichor was only available basecaller and was offered as a cloud service. Without added support for newer sequencing data, this model has limited application. It can be used as a demonstration of a different approach to base calling which yields promising results. 
-As newer versions of basecallers by Oxford Nanopore do not support for data sequenced with older chemistry, this tool could be used to re-basecall all sequencing data and possibly improve results in some application.
-
-Future work involves training on publicly available R9.4 data (loman)(zika) and R9.5 when it becomes available. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper that shows excellent results in both speed and accuracy in tasks of language translation. SELU je jako jeben za probat jos isto that makes Batch normalization layer obsolete[link]. 
-
-
-
-%TODO ABSTRACTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% DONE
 \bibliography{references}
 \bibliographystyle{unsrtnat}
 \begin{abstract}
-Abstract.
 
-\keywords{Keywords.}
+
+MinION by Oxford Nanopore Technologie is affordable and portable sequencing devices suitable for various applications. The device produces very long reads, however, it suffers from high sequencing error rate. 
+The goal of this thesis is to show that the reported accuracy of the data is not only limited by sequencing technology, but also by the software tools used for base calling and can be further improved by using different deep learning concepts.
+Approach for base calling of raw data using convolutional neural networks is introduced is proposed as an alternative for recurrent neural networks previously used offering both speed and accuracy. A detailed comparison is given of the developed tool with the existing tools for base calling R9 data.
+
+\keywords{base calling, Oxford Nanopore Technologies, MinION, deep learning, seq2seq, convolutional neural network, residual network, CTC loss}
 \end{abstract}
 
 \hrtitle{Model dubokog učenja za određivanje očitanih baza dobivenih uređajem za sekvenciranje MinION}
 \begin{sazetak}
-Sažetak na hrvatskom jeziku.
 
-\kljucnerijeci{Ključne riječi, odvojene zarezima.}
+
+Uređaji za sekvenciranje MinION tvrtke Oxford Nanopore Technologies su pristupačni i prenosivi što ih čini pogodnim za razne primjene. 
+Uređaj omogućuje sekvenciranje očitanja velikih duljina ali većeg postotka greške u odnosu na prethodne tehnologije.
+Cilj ovog diplomskog rada je pokazati da trenutna pogreška nije uzrokovana isključivo metodom sekvenciranja, već i programskim alatima za analizu podta te ju je moguće dodatno smanjiti korištenjem metoda dubokog učenja.
+
+Predstavljen je novi alat za očitavanje baza temeljen na konvolucijskim neuronski mrežama koji pruža preciznost i brzinu u odnosu na trenutno korištene rekurzivne neuronske mrežama. U radu je dana detaljna analiza razvijenog alata i usporedba s postojećim rješenjima za očitvanje baza.
+
+\kljucnerijeci{određivanje baza, Oxford Nanopore Technologies, MinION, duboko učenje, prevođenje, konvolucijske neuronske mreže, rezidualne mreže, CTC gubitak}
 \end{sazetak}
 
 \end{document}
