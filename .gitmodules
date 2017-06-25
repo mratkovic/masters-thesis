@@ -1,0 +1,3 @@
+[submodule "minion-basecaller"]
+	path = minion-basecaller
+	url = git@github.com:nmiculinic/minion-basecaller.git
