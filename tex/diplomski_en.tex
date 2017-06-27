@@ -157,9 +157,9 @@ Oxford Nanopore has, with the R9 version of the platform, introduced a variety o
 Initially, base calling was only available by uploading data to the platform - that being the reason why this basecaller is often called Metrichor even though it is a name of the company.
 
 The older version of Metrichor relied on \textit{hidden Markov models} (HMM) to find the biological sequence corresponding to the signal. Preprocess included segmentation of the signal into smaller chunks called events defined by start location of the chunk, length, mean value and variance of the signal in the chunk. Metrichor than assumed that each event usually corresponds to a context of 6 bases being present in the pore and that the context is typically shifted by one base in each step. 
-The states of HMM are modeled as a context present in the pore and transition correspond to change of bases in the pore. During the transition from one state to another, an event is emitted. Base calling is performed using the Viterbi algorithm which determines the most likely sequence of states for the observed sequence of events. This approach showed poor results when calling long homopolymer stretches as the context in the pore remains the same \cite{homopolymers}.
+The states of HMM are modeled as a context present in the pore and transition correspond to change of bases in the pore. During the transition from one state to another, an event is emitted. Base calling is performed using the Viterbi algorithm which determines the most likely sequence of states for the observed sequence of events. This approach showed poor results when calling long homopolymer stretches as the context in the pore remains the same \cite{homopolymers}\cite{homopolimeri_analiza}.
 
-With the release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN) implementation. Currently, Oxford Nanopore offers several RNN-based local basecaller versions under different names \cite{ont-basecallers}: Albacore, Nanonet and basecaller integrated into MinKNOW.  
+With the release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN) implementation. Currently, Oxford Nanopore offers several RNN-based local basecaller versions under different names: Albacore, Nanonet and basecaller integrated into MinKNOW \cite{ont-basecallers}.   
 
 \textit{Albacore} is basecaller by Oxford Nanopore Technologies ready for production and actively supported.
 It is available to the Nanopore Community served as a binary. The source code of Albacore was not provided and is only available through the ONT Developer Channel. Tool supports only R9.4 and future R9.5 version of the chemistry.
@@ -886,12 +886,13 @@ Developed model shows results comparable with Metrichor in all aspects (matches,
 All models show a slight bias towards deletions than insertions, but this may be the limitation of technology as it has been reported that deletion and mismatch rates for nanopore data are ordinarily higher than insertion rates \cite{sovic}.
 
 \subsection{Assembly}
-In this step consensus sequence is not calculated from pileup, but using \textit{de novo} genome assembly. For this task, fast and accurate \textit{de novo} genome assembler \textit{ra}\footnote{\url{https://github.com/rvaser/ra}} \cite{vaser} was used and obtained consensus sequence is compared to the reference using \textit{dnadiff} present in the \textit{Mumer}\footnote{\url{https://github.com/garviz/MUMmer}}. 
-The length of the reference, consensus sequence, number of contigs and percentages of aligned bases from the reference to the query and vice versa are shown in the table \ref{tbl:assembly}. Average identity summarizes how closely does the assebled sequence match the reference. This is run on full ecoli sequence run for 1D template reads (\textasciitilde 160k reads), for both developed tools and Metrichor. Developed tool has shown a small increase in quality of the assembled sequence over Metrichor by offering longer consensus, higher identity percentage and overall smaller edit distance\footnote{Calculated using \url{https://github.com/isovic/racon/blob/master/scripts/edcontigs.py}}.
+In this evaluation method, consensus sequence is not calculated from pileup, but by \textit{de novo} genome assembly. For this task, fast and accurate \textit{de novo} genome assembler \textit{ra}\footnote{\url{https://github.com/rvaser/ra}} \cite{vaser} was used and obtained consensus sequence is compared to the reference using \textit{dnadiff} present in the \textit{Mumer}\footnote{\url{https://github.com/garviz/MUMmer}}. 
+The length of the reference, consensus sequence, number of contigs and percentages of aligned bases from the reference to the query and vice versa are shown in the table \ref{tbl:assembly}. Average identity summarizes how closely does the assembled sequence match the reference. This is run on full ecoli sequence run for 1D template reads (\textasciitilde 160k reads), for both developed tools and Metrichor. Developed tool has shown a small increase in quality of the assembled sequence over Metrichor by offering longer consensus, higher identity percentage, and overall smaller edit distance\footnote{Calculated using \url{https://github.com/isovic/racon/blob/master/scripts/edcontigs.py}}.
+
 
 \begin{table}[htb]
 	\caption{Assembly and consensus results for ecoli}
-	\label{tbl:ecoli_lens}
+	\label{tbl:assembly}
 	\centering
 
 \begin{tabular}{lcc}
@@ -1024,7 +1025,7 @@ Future work includes experiments with recently proposed \textit{scaled exponenti
 
 MinION by Oxford Nanopore Technologie is affordable and portable sequencing device suitable for various applications. The device produces very long reads, however, it suffers from high sequencing error rate. 
 The goal of this thesis is to show that the reported accuracy of the sequencing data is not only limited by sequencing technology, but also by the current software tools used for base calling and can be further improved by using different deep learning concepts.
-Approach for base calling of raw data using convolutional neural networks is proposed as an alternative to recurrent neural networks used by other basecallers offering improvements both in  speed and accuracy. A detailed comparison of the developed tool with the existing tools  for base calling R9 data is given.
+Approach for base calling of raw data using convolutional neural networks is proposed as an alternative to recurrent neural networks used by other basecallers offering improvements both in  speed and accuracy. A detailed comparison of the developed tool with the existing tools for base calling R9 data is given.
 
 \keywords{base calling, Oxford Nanopore Technologies, MinION, deep learning, seq2seq, convolutional neural network, residual network, CTC loss}
 \end{abstract}
@@ -1037,7 +1038,7 @@ Uređaji za sekvenciranje MinION tvrtke Oxford Nanopore Technologies su pristupa
 Uređaj omogućuje sekvenciranje očitanja velikih duljina ali većeg postotka greške u odnosu na prethodne tehnologije.
 Cilj ovog diplomskog rada je pokazati da trenutna pogreška nije uzrokovana isključivo metodom sekvenciranja, već i programskim alatima koji se koriste za očitavanje baza te je pogrešku moguće smanjiti korištenjem metoda dubokog učenja.
 
-Predstavljen je novi alat za očitavanje baza temeljen na konvolucijskim neuronski mrežama koji pruža napredak u preciznost i brzinu u odnosu na trenutno korištene rekurzivne neuronske mrežama. U radu je dana detaljna analiza razvijenog alata i usporedba s postojećim rješenjima za očitvanje baza.
+Predstavljen je novi alat za očitavanje baza temeljen na konvolucijskim neuronski mrežama koji pruža napredak u preciznosti i brzini u odnosu na trenutno korištene rekurzivne neuronske mrežama. U radu je dana detaljna analiza razvijenog alata i usporedba s postojećim rješenjima za određivanje očitanih baza.
 
 \kljucnerijeci{određivanje baza, Oxford Nanopore Technologies, MinION, duboko učenje, prevođenje, konvolucijske neuronske mreže, rezidualne mreže, CTC gubitak}
 \end{sazetak}
