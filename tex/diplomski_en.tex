@@ -35,7 +35,15 @@
 \izvornik
 
 % Dodavanje zahvale ili prazne stranice. Ako ne želite dodati zahvalu, naredbu ostavite radi prazne stranice.
-\zahvala{Thanks ...}
+\zahvala{I would like to thank my mentor, Mile Šikić, for his patient guidance, encouragement
+	and advice provided over the years.
+	
+I would also like to thank my family and friends for their
+	continuous support.
+	
+In the end, honorable mentions go to Neven Miculinić for his help with this thesis.
+	
+}
 
 \tableofcontents
 \listoffigures
@@ -45,7 +53,7 @@
 %% CHAPTER
 \chapter{Introduction}
 
-In recent years,  deep learning methods significantly improved the state-of-the-art in multiple domains such as computer vision, speech recognition, and natural language processing\cite{LeCun:1998:CNI:303568.303704}\cite{NIPS2012_4824}. 
+In recent years,  deep learning methods significantly improved the state-of-the-art in multiple domains such as computer vision, speech recognition, and natural language processing \cite{LeCun:1998:CNI:303568.303704}\cite{NIPS2012_4824}. 
 In this thesis, we present application of deep learning in the field of  Bioinformatics for analysis of DNA sequencing data. 
 
 DNA is a molecule that makes up the genetic material of a cell, and it is responsible for carrying the information needed for survival, growth, and reproduction of an organism. 
@@ -92,7 +100,7 @@ Figure \ref{fg:sequencing} depicts process of sequencing.
 \end{figure}
 
 
-Development of sequencing started with work of Frederick Sanger\cite{mile}\cite{Pettersson2009}. In 1977, he developed the first sequencing method which allowed 
+Development of sequencing started with work of Frederick Sanger \cite{mile} \cite{Pettersson2009}. In 1977, he developed the first sequencing method which allowed 
 read lengths up to 1000 bases with very high accuracy (99.9\%) at the cost of 1\$ per 1000 bases.
 Second generation sequencing (IAN Torrent and Illumina devices) reduced the price of sequencing while maintaining high accuracy. Mayor disadvantage of these devices is read length of only a few hundred base pairs. Short reads make resolving repetitive regions practically impossible.
 
@@ -105,7 +113,7 @@ Cost makes the biggest obstacle stopping widespread genome sequencing. The relea
 
 \section{Oxford Nanopore MinION}
 
-The MinION device by Oxford Nanopore Technologies is the first portable DNA sequencing device. Its small weight, low cost, and long read length combined with decent accuracy yield promising results in various applications including full human genome assembly\cite{human_seq} what could potentially lead to personalized genomic medicine.
+The MinION device by Oxford Nanopore Technologies is the first portable DNA sequencing device. Its small weight, low cost, and long read length combined with decent accuracy yield promising results in various applications including full human genome assembly \cite{human_seq} what could potentially lead to personalized genomic medicine.
 
 \subsection{Technology}
 As its name says, nanoscaled pores are used to sequence DNA. An electrical potential is applied over a membrane in which a  pore is inserted. 
@@ -135,7 +143,7 @@ Official software called MinKNOW outputs sequencing data in FAST5 (a variant of 
 Minion offers the possibility of sequencing one or both strands of DNA. Sequencing both strands and combining information results in reads of higher quality. Those reads are called 2D (two-dimensional) reads. Otherwise, if the only single strand is sequenced 1D (one-dimensional) reads are produced.
 
 MinION devices can produce long reads, usually tens of thousand base pairs (with reported reads lengths of 100 thousand \cite{loman1-100k} and even recently above 800 thousand base pairs \cite{loman2-800k}), but with high sequencing error than older generations of sequencing technologies.
-Switch from older R7.3 to  R9 chemistry in 2016 increased accuracy of produced data. With this change, the accuracy of 1D data increased from 70\% to 85\% and the accuracy of 2D reads from 88\% to 94\%\cite{nanopore_video}.  This increase of accuracy makes 1D reads usable for analysis with benefits over 2D reads being faster sample preparation and faster sequencing. Developed tool in this thesis focuses on base calling 1D reads.
+Switch from older R7.3 to  R9 chemistry in 2016 increased accuracy of produced data. With this change, the accuracy of 1D data increased from 70\% to 85\% and the accuracy of 2D reads from 88\% to 94\% \cite{nanopore_video}.  This increase of accuracy makes 1D reads usable for analysis with benefits over 2D reads being faster sample preparation and faster sequencing. Developed tool in this thesis focuses on base calling 1D reads.
 
 
   
@@ -148,10 +156,10 @@ Oxford Nanopore has, with the R9 version of the platform, introduced a variety o
 \textit{Metrichor} is an Oxford Nanopore company that offers cloud-based platform \textit{EPI2ME} for analysis of nanopore data. 
 Initially, base calling was only available by uploading data to the platform - that being the reason why this basecaller is often called Metrichor even though it is a name of the company.
 
-The older version of Metrichor relied on \textit{hidden Markov models} (HMM) to find the biological sequence corresponding to the signal. Preprocess included segmentation of the signal into smaller chunks called events defined by start location of the chunk, length, mean value and variance of the signal in the chunk. Metrichor than assumed that each event usually corresponds to a context of 5 bases being present in the pore and that the context is typically shifted by one base in each step. 
-The states of HMM are modeled as a context present in the pore and transition correspond to change of bases in the pore. During the transition from one state to another, an event is emitted. Base calling is performed using the Viterbi algorithm which determines the most likely sequence of states for the observed sequence of events. This approach showed poor results when calling long homopolymer stretches as the context in the pore remains the same\cite{homopolymers}.
+The older version of Metrichor relied on \textit{hidden Markov models} (HMM) to find the biological sequence corresponding to the signal. Preprocess included segmentation of the signal into smaller chunks called events defined by start location of the chunk, length, mean value and variance of the signal in the chunk. Metrichor than assumed that each event usually corresponds to a context of 6 bases being present in the pore and that the context is typically shifted by one base in each step. 
+The states of HMM are modeled as a context present in the pore and transition correspond to change of bases in the pore. During the transition from one state to another, an event is emitted. Base calling is performed using the Viterbi algorithm which determines the most likely sequence of states for the observed sequence of events. This approach showed poor results when calling long homopolymer stretches as the context in the pore remains the same \cite{homopolymers}.
 
-With the release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN) implementation. Currently, Oxford Nanopore offers several RNN-based local basecaller versions under different names\cite{ont-basecallers}: Albacore, Nanonet and basecaller integrated into MinKNOW.  
+With the release of R9 chemistry, this model was replaced by a more accurate recurrent neural network (RNN) implementation. Currently, Oxford Nanopore offers several RNN-based local basecaller versions under different names \cite{ont-basecallers}: Albacore, Nanonet and basecaller integrated into MinKNOW.  
 
 \textit{Albacore} is basecaller by Oxford Nanopore Technologies ready for production and actively supported.
 It is available to the Nanopore Community served as a binary. The source code of Albacore was not provided and is only available through the ONT Developer Channel. Tool supports only R9.4 and future R9.5 version of the chemistry.
@@ -164,10 +172,10 @@ It is available to the Nanopore Community served as a binary. The source code of
 \pagebreak
 \subsection{Third-party basecallers}
 
-\textit{Nanocall}\cite{David046086} was the first third-party open source basecaller for nanopore data. It uses HMM approach like the original R7 Metrichor. Nanocall does not support newer chemistries after R7.3.
+\textit{Nanocall} \cite{David046086} was the first third-party open source basecaller for nanopore data. It uses HMM approach like the original R7 Metrichor. Nanocall does not support newer chemistries after R7.3.
 
 
-\textit{DeepNano}\cite{Boza2017}  was the first open-source basecaller based on neural networks. It uses bidirectional recurrent neural networks implemented in Python, using the Theano library. When released, originally only supported R7 chemistry, but support for R9 and R9.4 was added recently.
+\textit{DeepNano} \cite{Boza2017}  was the first open-source basecaller based on neural networks. It uses bidirectional recurrent neural networks implemented in Python, using the Theano library. When released, originally only supported R7 chemistry, but support for R9 and R9.4 was added recently.
 
 
 
@@ -190,9 +198,9 @@ This section explains some key  deep learning concepts needed to understand the 
 	\end{center}
 \end{figure}
 
-These networks are trained using a variant of backpropagation called backpropagation through time which is essentially the same as classical backpropagation on an unfolded network. The gradient is propagated through the entire recurrence relation, and the gradient is multiplied in each step with the factor, depending on a scale it can make gradient vanish (drop to 0) or exponentially grow each step and explode. Detailed explanation can be found \cite{rnn-blog}. These issues are called the vanishing and exploding gradient and are generally resolved by a variant of RNN called \textit{LSTM}\cite{hochreiter1997long}. 
+These networks are trained using a variant of backpropagation called backpropagation through time which is essentially the same as classical backpropagation on an unfolded network. The gradient is propagated through the entire recurrence relation, and the gradient is multiplied in each step with the factor, depending on a scale it can make gradient vanish (drop to 0) or exponentially grow each step and explode. Detailed explanation can be found \cite{rnn-blog}. These issues are called the vanishing and exploding gradient and are generally resolved by a variant of RNN called \textit{LSTM} \cite{hochreiter1997long}. 
 
-Bidirectional Recurrent Neural (BiRNN) networks are used when the current output not only depends on the previous elements in the sequence but also future elements. The idea is to combine two RNN (one in the positive direction, one in negative time direction) and have an output of the current state expressed as a function of hidden states of both RNNs and current input. This is the approach used in DeepNano\cite{Boza2017}. 
+Bidirectional Recurrent Neural (BiRNN) networks are used when the current output not only depends on the previous elements in the sequence but also future elements. The idea is to combine two RNN (one in the positive direction, one in negative time direction) and have an output of the current state expressed as a function of hidden states of both RNNs and current input. This is the approach used in DeepNano \cite{Boza2017}. 
 
 
 One of the major drawbacks of all recurrent networks is computation time. RNNs operate sequentially as the output for the second step depends on the first step and so on, which makes parallelization capabilities of RNNs quite limited. This especially is the case for Bidirectional RNNs.
@@ -227,7 +235,7 @@ x, & \text{if}\ x>0 \\
 
 
 The downside of ReLU is still saturation to the 0 on one side. Once in this state, the neuron is unlikely to recover because the function gradient at 0 is also 0, so gradient descent learning will not alter the weights. This is the problem known as \textit{dying ReLU}.
-Different variants of ReLU, \textit{PrRelu}, and \textit{ELU} are often used to resolve this problem\cite{prelu}\cite{elu}.  
+Different variants of ReLU, \textit{PrRelu}, and \textit{ELU} are often used to resolve this problem \cite{prelu}\cite{elu}.  
 
 \begin{equation}    
 PrELU(x)=
@@ -290,7 +298,7 @@ Lower layers see limited spatial information and are able to detect simple featu
 Stacking layers increases computational time as the input signal has to pass through the entire network but calculations at each layer can happen concurrently and each individual computation is small.
 In practice, even deep CNNs still have a big speed up over RNNS.
 
-During the forward pass, input flows and is transformed, hopefully becoming a representation that is more suitable for the task. During the back phase, the gradient is propagated back through the network. Just like in RNNs, this signal gets multiplied and depending on the scales it can vanish resulting in no gradient flow to lower layers and no parameter upgrades. This limits the depth of the network. Resnet arhitecture\cite{resnet} with its residual layers address this issue and allows deep architectures with steady gradient flow.
+During the forward pass, input flows and is transformed, hopefully becoming a representation that is more suitable for the task. During the back phase, the gradient is propagated back through the network. Just like in RNNs, this signal gets multiplied and depending on the scales it can vanish resulting in no gradient flow to lower layers and no parameter upgrades. This limits the depth of the network. Resnet arhitecture \cite{resnet} with its residual layers address this issue and allows deep architectures with steady gradient flow.
 
 
 
@@ -321,7 +329,7 @@ Suppose that we have an input sequence $X$ (signal data) and the desired output 
 Instead of having a variable size of the output from the neural network, we can limit it to the length $m$ and have sequences of variable length \textit{decoded} from those outputs. The neural network can be considered to be simply a function that takes in some input sequence $X$ (of length $n$) and generates sequence $O$ (of length $m$). Output sequence of variable length $Y$ is later \textit{decoded} from $O$.
 
 \subsection{Definition}
-They key idea behind Connectionist Temporal Classification(CTC)\cite{Graves:2006:CTC:1143844.1143891} is that instead of directly generating output sequence $Y$ as output from the neural network, we  generate a probability distribution at every output length (from $t$=1 to $t$=$m$) that after \textit{decoding} gives maximum likelihood output sequence $Y$. 
+They key idea behind Connectionist Temporal Classification(CTC) \cite{Graves:2006:CTC:1143844.1143891} is that instead of directly generating output sequence $Y$ as output from the neural network, we  generate a probability distribution at every output length (from $t$=1 to $t$=$m$) that after \textit{decoding} gives maximum likelihood output sequence $Y$. 
 Finally, the network is trained using training dataset $D = \{(X_i, Y_i)\}$ by creating an objective function that restricts the maximum likelihood decoding for a given sequence $X_i$ to correspond to our desired target sequence $Y_i$.
 
 Given an input sequence $X$ of length $n$, the network generates probabilities over all possible labels (A, C, T, and G) with an extra symbol "-" representing a \textit{blank} at each timestep. 
@@ -392,7 +400,7 @@ Calculation of all possible sequences is computationally intractable but exist s
 The naive possibility is to take the most probable path and say that output sequence corresponds to that path.
 This is not necessarily correct.  For example, suppose we have one path with probability $0.1$ corresponding to sequence $A$, and ten paths with probabilities  $0.05$ each corresponding to sequence $B$. Label $B$ is preferable one since it has an overall probability of $0.5$; however, this naive best path decoding would select label $A$, whose single path has higher probability the those for label $B$. This method is called \textit{best path decoding}.
 
-Better approximations can be calculated using \textit{beam search decoding} proposed in paper\cite{graves_decode}.  
+Better approximations can be calculated using \textit{beam search decoding} proposed in paper \cite{graves_decode}.  
 The idea is an incremental construction of the most probable sequences in step $t$ using $N$ most probable sequences from the previous step. Parameter $N$ is called beam width. 
 
 
@@ -425,12 +433,12 @@ Using this expression, using dynamic programing can efficiently be determine pro
 
 Beam search decoder keeps set $B$ of $N$ most probable sequences. $B$ is initially a set consisting of a single blank. In each time step $t$ (from $t$=1 to $t$=$m$) all sequences from $B$ are expanded and probabilities of new sequences are calculated using recursive relation \ref{eq:rec_step}. Expanded sequences are placed in the new set $B'$. At the end of each step, $B$ is replaced by $B'$ and truncated by keeping $N$ most probable sequences. 
 After last time step, the sequence in $B$ with the highest probability is chosen as the final output.
-Full pseudocode can be found in original paper\cite{graves_decode}. 
-Detailed explanation and calculation of gradient can be found in original CTC paper \cite{Graves:2006:CTC:1143844.1143891}, or this very detailed blog post\cite{ctc-blog}.
+Full pseudocode can be found in original paper \cite{graves_decode}. 
+Detailed explanation and calculation of gradient can be found in original CTC paper \cite{Graves:2006:CTC:1143844.1143891}, or this very detailed blog post \cite{ctc-blog}.
 
 
 \section{Batch normalization}
-Batch normalization is method proposed in paper\cite{BNORM} that accelerates learning process. 
+Batch normalization is method proposed in paper \cite{BNORM} that accelerates learning process. 
 During training, parameters are updated, and distribution of outputs of each layer keep changing. A small change in the distribution of outputs in early layers can cause a drastic change in later layers, and those layers need to adapt to the new scale of their inputs. This change of distribution is called the internal covariate shift and results in slows learning.
 This is solved by centering each output from activations of the training batch to zero-mean and unit variance. After that learned scale and offset are applied. This process is called batch normalization. 
 After training, mean and variance for each activation are computed on the whole training dataset rather than on mini-batches during training. 
@@ -444,7 +452,7 @@ Batch normalization offers several advantages other than reducing internal covar
 
 \section{Data}
 
-Both used datasets show in table \ref{tbl:datasets} are were previously have passed through MinKNOW and had been basecalled by Metrichor.
+Both used datasets show in table \ref{tbl:datasets} be previously have passed through MinKNOW and had been basecalled by Metrichor. As 1D read analysis was the focus of this thesis, only those reads were used.
 \begin{savenotes}
 	\begin{table}[htb]
 		\caption{Used datasets}
@@ -453,7 +461,7 @@ Both used datasets show in table \ref{tbl:datasets} are were previously have pas
 		
 		\begin{tabular}{lcc| c}
 			\toprule
-			{} &  \thead{Number of reads} &   \thead{Total bases (bp)\footnote{Total number of bases calle by Metrichor}} &    \thead{Whole genome size (bp)} \\
+			{} &  \thead{Number of reads} &   \thead{Total bases \lbrack bp\rbrack\footnote{Total number of bases calle by Metrichor}} &    \thead{Whole genome size \lbrack bp\rbrack} \\
 			\midrule
 			\textit{{E. Coli}}\footnote{R9 sequencing data from \url{http://lab.loman.net/2016/07/30/nanopore-r9-data-release/}, reference taken from \url{https://www.ncbi.nlm.nih.gov/nuccore/48994873}} & 164471 & 1 481 687 490 & 4 639 675\\
 			\textit{lambda}\footnote{Internal dataset, reference taken from \url{https://www.ncbi.nlm.nih.gov/nuccore/NC_001416.1}}   & 86 &  466 465 & 48 502  \\
@@ -531,7 +539,7 @@ There are several possible letters that can appear in CIGAR string but most impo
 \section{Data preprocess}
 
 To help training process, the raw signal is split into smaller blocks that are used as inputs. For each Metrichor basecalled event is easy to determine the block it falls into using $start$ field. Using this information output given by Metrichor can be determined for each block. 
-To correct errors produced by Metrichor and possibly increase the quality of data, each read is aligned to the reference. This is done using aligner GraphMap\cite{sovic} that returns the best position in the genome, hopefully, the part of the genome from which read came from.
+To correct errors produced by Metrichor and possibly increase the quality of data, each read is aligned to the reference. This is done using aligner GraphMap \cite{sovic} that returns the best position in the genome, hopefully, the part of the genome from which read came from.
 Alignment part in the genome is used as a target. Using CIGAR string returned by aligner we can correct Metrichor data and get target output for each block. This process is shown in figure \ref{fg:data_correction}.
 
 \begin{figure}[!ht]
@@ -557,7 +565,7 @@ Overview of the entire learning pipeline is shown in figure \ref{fg:train_pipe}.
 
 \section{Deep Learning model}
 
-The final model is a residual neural network consisting of 72 residual blocks that are depicted in figure \ref{fg:model_block}. The used model is a variant of architecture proposed in paper \cite{identitet} with the difference of ELU being used as activation instead of ReLU as it is reported\cite{resnet-elu} to speeds up the learning process and improve accuracy as the depth increase.
+The final model is a residual neural network consisting of 72 residual blocks that are depicted in figure \ref{fg:model_block}. The used model is a variant of architecture proposed in paper \cite{identitet} with the difference of ELU being used as activation instead of ReLU as it is reported \cite{resnet-elu} to speeds up the learning process and improve accuracy as the depth increase.
 \begin{figure}[!ht]
 	\begin{center}
 		\includegraphics[width=0.2\textwidth]{./imgs/model.png}
@@ -568,10 +576,10 @@ The final model is a residual neural network consisting of 72 residual blocks th
 
 Each residual block contains two convolution layers making a total number of convolutions 144. Each convolutional layer in this models uses 64 kernels of 3. Because sequenced read is always shorter than the raw signal, pooling with kernel size two is used every 48 layers resulting in a reduction of dimensionality by factor 8. This is used reduce computation effort and to help training by reducing the number of required blank labels outputed by the network. This network has two million parameters that are learned during training. 
 
-Training the model is the minimization of previously described CTC loss. It was done using Adam\cite{adam}, stochastic gradient descent algorithm based on an estimation of first and second-order moments.
+Training the model is the minimization of previously described CTC loss. It was done using Adam \cite{adam}, stochastic gradient descent algorithm based on an estimation of first and second-order moments.
 It is often used as it offers fast and stable convergence. Default parameters of Adam were used (
 $\beta_1=0.9$ and $\beta_2=0.999$). Initial learning rate was set to 1e-3 with exponential decay. Batch size was set to 8 mostly due to limited hardware resources. As noisy batches could potentially cause gradients to explode, gradient clipped to a range [-2, 2] was used.
-Figure \ref{fg:learn} shows learning curves during training. Occasional spikes of training loss are explained by small batch size and presence of noise in the signal. Learning curves show no sign of overfitting.
+Learning curve is show on figure \ref{fg:learn}. Occasional spikes of training loss are explained by small batch size and presence of noise in the signal. Learning curve shows no sign of overfitting as modes shows similar performance on both train and validation sets.
 
 \begin{figure}[!ht]
 	\begin{center}
@@ -600,13 +608,14 @@ Nvidia Docker\footnote{\url{https://github.com/NVIDIA/nvidia-docker}} was used f
 
 Training and all evaluations were done on the server with  \textit{Intel(R) Xeon(R) E5-2640 CPU}, 600 GB of RAM and \textit{NVIDIA TITAN X Black} with 6GB of GDDR5 memory and 2880 CUDA cores.
 
-All developed and used code, including utility scripts is publicly available on \textit{GitHub}\footnote{\url{https://goo.gl/RVeyjU}} under the \textit{MIT Licence}.
+All developed and used code, including utility scripts is publicly available on \textit{GitHub}\footnote{\url{https://github.com/mratkovic/masters-thesis}} under the \textit{MIT Licence}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% CHAPTER
 \chapter{Results}
 Developed tool was compared with other available basecallers that support R9 chemistry. This includes third-party basically DeepNano and official basecallers by Oxford Nanopore (cloud-based Metrichor and Nanonet).
-The fact that ground truth is not known makes evaluation difficult. Two approaches were used to get clearer information about each basecaller.
+The fact that ground truth is not known makes evaluation difficult. 
+Different methods for evaluation were used to get clearer information about each basecaller.
 In all tables and figures, developed model is addressed as \textit{resdeep} simply due to the fact it is a deep residual neural network.
 
 
@@ -786,9 +795,12 @@ The histogram on figure \ref{fg:cigar_op_dist} shows how matches, mismatches, in
 
 
 \section{Consensus}
-Described error rates and match rates calculated from alignments of individual reads to the reference could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner does not discard short and highly ambiguous reads) will always return perfect alignment as nucleotide "A" is certainly present in the reference. This model would have a perfect match rate with non-existent mismatches, insertions, and deletions.  The second approach is used, in addition to the first, to give a more rigorous comparison.
+Described error rates and match rates calculated from alignments of individual reads to the reference could be misleading as it is simple to produce a naive model that obtains excellent results. Let us consider a model that basecalls single base "A" for every input signal. Aligning "A" to the reference (supposing that the aligner does not discard short and highly ambiguous reads) will always return perfect alignment as nucleotide "A" is certainly present in the reference. This model would have a perfect match rate with non-existent mismatches, insertions, and deletions. Two other approaches are used, in addition to the first, to give a more rigorous comparison.
 
-Idea is to check if the reconstruction of the reference is possible from the reads and how closely does it match the original reference. Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote, dominant bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition,  the majority has to agree on both length and the bases of insertion. Figure \ref{fg:consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
+The idea behind other approaches is checking if the reconstruction of the reference is possible from the basecalled reads and closely does it match the original reference.
+
+\subsection{Consensus from pileup}
+ Instead of going through the whole assembly process, as we know the reference genome of the data used in these tests, we simply align all the reads to the genome, stack them on top of each other forming pileup of read bases. Using majority vote, dominant bases are called on each position. The resulting sequence is called consensus. When calling consensus for deletions,  there has to be a majority of deletions of the same length. Calling insertions has the additional condition,  the majority has to agree on both length and the bases of insertion. Figure \ref{fg:consensus} shows how consensus is called from pileup created from aligned reads. Pileup is stored in mpileup format.  
 
 
 \begin{figure}[!ht]
@@ -843,7 +855,7 @@ Developed model shows results comparable with Metrichor in all aspects (matches,
 	
 	\begin{tabular}{lcccccc}
 		\toprule
-		{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+		{} &  \thead{Total called\\\lbrack bp\rbrack} &  \thead{Correctly called\\\lbrack bp\rbrack} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
 		\midrule
 		DeepNano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
 		Metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
@@ -861,7 +873,7 @@ Developed model shows results comparable with Metrichor in all aspects (matches,
 	
 	\begin{tabular}{lcccccc}
 		\toprule
-		{} &  \thead{Total called\\(bp)} &  \thead{Correctly called\\(bp)} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+		{} &  \thead{Total called\\\lbrack bp\rbrack} &  \thead{Correctly called\\\lbrack bp\rbrack} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
 		\midrule
 		DeepNano  &                    48342.0 &                        48025.0 &          99.3443 &         0.6433 &               \textbf{0.0124} &              0.2648 \\
 		Metrichor &                    48469.0 &                        48257.0 &          \textbf{99.5626} &         \textbf{0.4188} &               0.0186 &              \textbf{0.1465} \\
@@ -871,7 +883,31 @@ Developed model shows results comparable with Metrichor in all aspects (matches,
 	\end{tabular}
 \end{table}
 
-All models show a slight bias towards deletions than insertions, but this may be the limitation of technology as it has been reported that deletion and mismatch rates for nanopore data are ordinarily higher than insertion rates\cite{sovic}.
+All models show a slight bias towards deletions than insertions, but this may be the limitation of technology as it has been reported that deletion and mismatch rates for nanopore data are ordinarily higher than insertion rates \cite{sovic}.
+
+\subsection{Assembly}
+In this step consensus sequence is not calculated from pileup, but using \textit{de novo} genome assembly. For this task, fast and accurate \textit{de novo} genome assembler \textit{ra}\footnote{\url{https://github.com/rvaser/ra}} \cite{vaser} was used and obtained consensus sequence is compared to the reference using \textit{dnadiff} present in the \textit{Mumer}\footnote{\url{https://github.com/garviz/MUMmer}}. 
+The length of the reference, consensus sequence, number of contigs and percentages of aligned bases from the reference to the query and vice versa are shown in the table \ref{tbl:assembly}. Average identity summarizes how closely does the assebled sequence match the reference. This is run on full ecoli sequence run for 1D template reads (\textasciitilde 160k reads), for both developed tools and Metrichor. Developed tool offers an increase in quality of the assembled sequence over Metrichor by offering both longer consensus and higher identity percentage.
+
+\begin{table}[htb]
+	\caption{Assembly and consensus results for ecoli}
+	\label{tbl:ecoli_lens}
+	\centering
+
+\begin{tabular}{lcc}
+	\toprule
+	 &         metrichor &           resdeep \\
+	\midrule
+	\thead{Ref. genome size \lbrack bp\rbrack} &           4639675 &            4639675 \\
+	\thead{Total bases \lbrack bp\rbrack}      &           4604806 &           4614354 \\
+	\thead{Contigs [\#]}           &                 1 &                 1 \\
+	\thead{Aln. bases ref. \lbrack bp\rbrack}  &  4639641(100.00\%) &  4639612(100.00\%) \\
+	\thead{Aln. bases query \lbrack bp\rbrack} &  4604787(100.00\%) &  4614351(100.00\%) \\
+	\thead{Avg. Identity}         &             98.76 &             99.06 \\
+	\bottomrule
+\end{tabular}
+
+\end{table}
 
 
 \section{Read lengths}
@@ -974,7 +1010,7 @@ It would be interesting to see how well this approach works compare to basecalle
 Currently, without support for newer sequencing data, this model has limited application. 
 It can be used as a demonstration of a different approach to base calling which yields promising results.  As newer versions of basecallers by Oxford Nanopore do not offer any support for data sequenced with previous version of chemistries, this tool can be used to re-basecall that data and improvement of the quality of reads.
 
-Future work includes experiments with recently proposed \textit{scaled exponential linear units} (SELU)\cite{selu} that eliminates the need for normalization techniques such as used batch normalization. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper\cite{facebook} showing excellent results in both speed and accuracy, for tasks of language translation. 
+Future work includes experiments with recently proposed \textit{scaled exponential linear units} (SELU) \cite{selu} that eliminates the need for normalization techniques such as used batch normalization. Possible improvements of the model include the combination of convolutions and attention mechanism proposed just recently in the paper \cite{facebook} showing excellent results in both speed and accuracy, for tasks of language translation. 
 
 
 
