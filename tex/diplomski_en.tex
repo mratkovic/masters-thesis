@@ -887,7 +887,7 @@ All models show a slight bias towards deletions than insertions, but this may be
 
 \subsection{Assembly}
 In this step consensus sequence is not calculated from pileup, but using \textit{de novo} genome assembly. For this task, fast and accurate \textit{de novo} genome assembler \textit{ra}\footnote{\url{https://github.com/rvaser/ra}} \cite{vaser} was used and obtained consensus sequence is compared to the reference using \textit{dnadiff} present in the \textit{Mumer}\footnote{\url{https://github.com/garviz/MUMmer}}. 
-The length of the reference, consensus sequence, number of contigs and percentages of aligned bases from the reference to the query and vice versa are shown in the table \ref{tbl:assembly}. Average identity summarizes how closely does the assebled sequence match the reference. This is run on full ecoli sequence run for 1D template reads (\textasciitilde 160k reads), for both developed tools and Metrichor. Developed tool offers an increase in quality of the assembled sequence over Metrichor by offering both longer consensus and higher identity percentage.
+The length of the reference, consensus sequence, number of contigs and percentages of aligned bases from the reference to the query and vice versa are shown in the table \ref{tbl:assembly}. Average identity summarizes how closely does the assebled sequence match the reference. This is run on full ecoli sequence run for 1D template reads (\textasciitilde 160k reads), for both developed tools and Metrichor. Developed tool has shown a small increase in quality of the assembled sequence over Metrichor by offering longer consensus, higher identity percentage and overall smaller edit distance\footnote{Calculated using \url{https://github.com/isovic/racon/blob/master/scripts/edcontigs.py}}.
 
 \begin{table}[htb]
 	\caption{Assembly and consensus results for ecoli}
@@ -896,15 +896,16 @@ The length of the reference, consensus sequence, number of contigs and percentag
 
 \begin{tabular}{lcc}
 	\toprule
-	 &         metrichor &           resdeep \\
+	 &         Metrichor &           resdeep \\
 	\midrule
-	\thead{Ref. genome size \lbrack bp\rbrack} &           4639675 &            4639675 \\
-	\thead{Total bases \lbrack bp\rbrack}      &           4604806 &           4614354 \\
-	\thead{Contigs [\#]}           &                 1 &                 1 \\
-	\thead{Aln. bases ref. \lbrack bp\rbrack}  &  4639641(100.00\%) &  4639612(100.00\%) \\
-	\thead{Aln. bases query \lbrack bp\rbrack} &  4604787(100.00\%) &  4614351(100.00\%) \\
-	\thead{Avg. Identity}         &             98.76 &             99.06 \\
-	\bottomrule
+\thead{Ref. genome size (bp)} &           4639675 &           4639675 \\
+\thead{Total bases (bp)}      &           4604806 &           \textbf{4614354} \\
+\thead{Contigs [\#]}           &                 1 &                 1 \\
+\thead{Aln. bases ref. (bp)}  &  4639641(100.00\%) &  4639612(100.00\%) \\
+\thead{Aln. bases query (bp)} &  4604787(100.00\%) &  4614351(100.00\%) \\
+\thead{Avg. Identity}         &             98.76 &             \textbf{99.06} \\
+\thead{Edit distance}         &             60418 &             \textbf{46686} \\
+\bottomrule
 \end{tabular}
 
 \end{table}
