@@ -62,6 +62,7 @@ Associate Profesor Mile Šikić, PhD}
 	\begin{figure}
 		\begin{center}
 			\includegraphics[width=1\textwidth]{imgs/minion.png}%
+		    \caption{The MinION sequencing device}
 		\end{center}
 	\end{figure}
 \end{frame}
@@ -71,8 +72,10 @@ Associate Profesor Mile Šikić, PhD}
 %% FRAME
 \begin{frame}[fragile]{Technology}
 	\begin{figure}
+		
 		\begin{center}
 			\includegraphics[width=1\textwidth]{imgs/nanopore_no_bases.png}%
+			\caption{The MinION sequencing device}
 		\end{center}
 	\end{figure}
 \end{frame}
@@ -132,7 +135,8 @@ Associate Profesor Mile Šikić, PhD}
 			\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
 			\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
 			\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
-			\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%				
+			\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%	
+			\caption{Signal segmentation}			
 		\end{center}
 	\end{figure}
 \end{frame}
@@ -147,17 +151,30 @@ Associate Profesor Mile Šikić, PhD}
 	 variable length loss function
 \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{CTC loss}
 	\alert{Idea}: decode sequence from fixed-width output (softmax over alphabet)
-	\begin{figure}
-		\caption{Path "AAC-T"}
-		\begin{center}
-			\includegraphics<1>[width=0.7\textwidth]{./imgs/ctc/graph_0.png}%
-			\includegraphics<2->[width=0.7\textwidth]{./imgs/ctc/graph_1.png}%	
-		\end{center}
-	\end{figure}
+	\only<1>{
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=0.7\textwidth]{./imgs/ctc/graph_0.png}%	
+				\caption{Output}
+			\end{center}
+		\end{figure}	
+	}
+	\addtocounter{figure}{1}
+	\only<2->{
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=0.7\textwidth]{./imgs/ctc/graph_1.png}%	
+				\caption{Path "AAC-T"}
+			\end{center}
+		\end{figure}
+	}
+	
+	
 	\onslide<3->{
 		\begin{equation}
 		\begin{gathered}
@@ -165,8 +182,6 @@ Associate Profesor Mile Šikić, PhD}
 		\end{gathered}
 		\end{equation}
 	}
-	
-
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -222,6 +237,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 			\includegraphics<3>[width=1\textwidth]{./imgs/train/t3.png}%
 			\includegraphics<4>[width=1\textwidth]{./imgs/train/t4.png}%
 			\includegraphics<5>[width=1\textwidth]{./imgs/train/t5.png}%
+			\caption{Dataset preparation}
 		\end{center}
 	\end{figure}
 \end{frame}
@@ -237,10 +253,9 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 	\end{itemize}
 	\onslide<2-> {
 		\begin{figure}
-			\caption{Residual block}
 			\begin{center}
 				\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
-	
+				\caption{Residual block}	
 			\end{center}
 		\end{figure}
 	}
@@ -385,10 +400,10 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 	
 	\onslide<2> {
 		\begin{figure}
-			\caption{Implementation}
+
 			\begin{center}
 				\includegraphics[width=0.7\textwidth]{./imgs/selu_tf.png}%
-				
+				\caption{SELU implementation}				
 			\end{center}
 		\end{figure}
 	}
