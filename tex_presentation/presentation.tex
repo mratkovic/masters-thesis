@@ -9,11 +9,27 @@
 \usepackage[scale=2]{ccicons}
 
 \usepackage{pgfplots}
-\usepgfplotslibrary{dateplot}
+\usepackage{graphicx}
 \setbeamercolor{background canvas}{bg=white}
 
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+
+
+\usepackage{amsmath}
+\usepackage{nccmath}
+
+
+\usepackage{makecell}
+\renewcommand\theadalign{cb}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+\renewcommand\theadalign{cb}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[4pt]}
+\renewcommand\cellgape{\Gape[4pt]}
+
 
 \title{Deep Learning Model for Base Calling of MinION Nanopore Reads}
 %\subtitle{Master thesis assignment No. 1417}
@@ -215,16 +231,19 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 %% FRAME
 \begin{frame}[fragile]{Model}
 	\begin{itemize}
-		\item Residual CNN, 72 blocks, 2M parameters
-		\item Maxpool every 24 blocks, reduction of dimensionality by factor 8
+		\item<1-> Residual CNN
+		\item<2-> 72 blocks, 2M parameters
+		\item<3-> Maxpool every 24 blocks, reduction of dimensionality by factor 8
 	\end{itemize}
-	\begin{figure}
-		\caption{Residual block}
-		\begin{center}
-			\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
-
-		\end{center}
-	\end{figure}
+	\onslide<2-> {
+		\begin{figure}
+			\caption{Residual block}
+			\begin{center}
+				\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
+	
+			\end{center}
+		\end{figure}
+	}
 \end{frame}
 
 
@@ -232,19 +251,129 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Results}
-	\begin{itemize}
-		\item Residual CNN, 72 blocks, 2M parameters
-		\item Maxpool every 24 blocks, reduction of dimensionality by factor 8
-	\end{itemize}
-	\begin{figure}
-		\caption{Residual block}
-		\begin{center}
-			\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
-			
-		\end{center}
-	\end{figure}
+	\alert{Ground truth?}
+	Per read metrics
+
+\begin{table}[htbp]
+	\caption{Alignment specifications of E. Coli R9 basecalled reads}
+	\label{tbl:ecoli_rates}
+	\centering
+	\begin{tabular}{lcccc}
+		\toprule
+		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+		\midrule
+		DeepNano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
+		Metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
+		Nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
+		MinCall    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
+		\bottomrule
+	\end{tabular}
+\end{table}
+	
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=0.8\textwidth]{imgs/results/kde_cigar.png}
+			\caption{KDE plot of alimnment operations for E. Coli}
+			\label{fg:consensus}
+		\end{center}
+	\end{figure}
+
+	
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+	\alert{Consensus from pileup}
+	
+	\only<1> {
+		\begin{figure}[!htb]
+			\begin{center}
+				\includegraphics[width=0.8\textwidth]{imgs/consnesus.png}
+				\caption{Consensus from pileup}
+				\label{fg:consensus}
+			\end{center}
+		\end{figure}
+	}
+	\only<2> {
+		\begin{table}[!htb]
+			\caption{Consensus specification of E. Coli R9 basecalled reads}
+			\label{tbl:spec_ecoli}
+			\centering
+			\centering \small%
+			\resizebox{\textwidth}{!}{
+				\begin{tabular}{lcccccc}
+					\toprule
+					{} &  \thead{Total called\\\lbrack bp\rbrack} &  \thead{Correctly called\\\lbrack bp\rbrack} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+					\midrule
+					DeepNano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
+					Metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
+					Nanonet   &                  1414237.0 &                      1385515.0 &          97.9691 &         1.5700 &               0.4609 &              1.5158 \\
+					MinCall   &                  1517828.0 &                      1506233.0 &          \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
+					\bottomrule
+				\end{tabular}
+			}
+		\end{table}
+	}
+	
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+\alert{Consensus from de novo assembly} obtained using assembler \emph{ra}\footnote{\url{https://github.com/rvaser/ra}} and compared to the reference using dnadiff present in the Mumer\footnote{\url{https://github.com/garviz/MUMmer}}
+
+\onslide<2->{
+	\begin{table}[htb]
+		\caption{Assembly and consensus results for E. Coli}
+		\label{tbl:assembly}
+		\centering \small%
+	   	\resizebox{\textwidth}{!}{
+	   		
+	   		\begin{tabular}{lccc}
+	   			\toprule
+	   			&         \thead{Metrichor} &           \thead{resdeep} &    \thead{Nanonet} \\
+	   			\midrule
+	   			% \thead{Ref. genome size (bp)} &           4639675 &           4639675 &            4639675 \\
+	   			% \thead{Total bases (bp)}      &           4604806 &           \textbf{4614354} &          4600056 \\
+	   			% \thead{Contigs [\#]}           &                 1 &                 1 &                1 \\
+	   			\thead{Aln. bases ref. (bp)}  &  4639641(100.00\%) &  4639612(100.00\%) &  4639031(99.99\%) \\
+	   			\thead{Aln. bases query (bp)} &  4604787(100.00\%) &  4614351(100.00\%) &  4599745(99.99\%) \\
+	   			\thead{Avg. Identity}         &             98.76 &             \textbf{99.06} &            98.47 \\
+	   			\thead{Edit distance}         &             60418 &             \textbf{46686 }&            74341 \\
+	   			\bottomrule
+	   		\end{tabular}
+	   	}
+	\end{table}
+}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results - basecalling speed}
+\begin{table}[htbp]
+
+	\caption{Base calling speeds measured in \textit{base pairs per second}\footnote{Tested on server with two 8-core Intel(R) Xeon(R) E5-2640 v2 CPUs, NVIDIA Titan X Black GPU, 6GB}}
+	\label{tbl:speeds}
+	
+	\centering
+	\begin{tabular}{lccc}
+		\toprule
+		{} &  \thead{resdeep} &  \thead{Nanonet} &  \thead{DeepNano}  \\
+		\midrule
+		Speed CPU(bp/s)  & \textbf{ 1363.34 } & 897.49 & 692.37 \\
+		Speed GPU(bp/s)  & \textbf{ 6571.76 } & 3828.39  & - \\
+		\bottomrule
+	\end{tabular}
+	
+
+\end{table}	
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Future work}
