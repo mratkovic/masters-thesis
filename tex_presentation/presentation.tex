@@ -10,209 +10,272 @@
 
 \usepackage{pgfplots}
 \usepgfplotslibrary{dateplot}
+\setbeamercolor{background canvas}{bg=white}
 
 \usepackage{xspace}
 \newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
 
 \title{Deep Learning Model for Base Calling of MinION Nanopore Reads}
-\subtitle{Master thesis assignment No. 1417}
+%\subtitle{Master thesis assignment No. 1417}
 % \date{\today}
 \date{}
 \author{Marko Ratković\\
 Associate Profesor Mile Šikić, PhD}
-\institute{Faculty of Electrical Engineering and Computing\\ University of Zagreb}
+\institute{University of Zagreb\\ Faculty of Electrical Engineering and Computing}
 % \titlegraphic{\hfill\includegraphics[height=1.5cm]{logo.pdf}}
 
 \begin{document}
 
 \maketitle
 
-\begin{frame}{Table of contents}
-  \setbeamertemplate{section in toc}[sections numbered]
-  \tableofcontents[hideallsubsections]
-\end{frame}
+%\begin{frame}{Table of contents}
+%  \setbeamertemplate{section in toc}[sections numbered]
+%  \tableofcontents[hideallsubsections]
+%\end{frame}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% SECTION 
-\section{Introduction}
-\begin{frame}[fragile]{Metropolis}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% FRAME
-\end{frame}
-\begin{frame}[fragile]{Sections}
-  Sections group slides of the same topic
-
-  \begin{verbatim}    \section{Elements}\end{verbatim}
-
-  for which \themename provides a nice progress indicator \ldots
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% SECTION 
-\section{Titleformats}
+%\section{Introduction}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
-
-\section{Elements}
-
-
-\begin{frame}{Font feature test}
-  \begin{itemize}
-    \item Regular
-    \item \textit{Italic}
-    \item \textsc{SmallCaps}
-    \item \textbf{Bold}
-    \item \textbf{\textit{Bold Italic}}
-    \item \textbf{\textsc{Bold SmallCaps}}
-    \item \texttt{Monospace}
-    \item \texttt{\textit{Monospace Italic}}
-    \item \texttt{\textbf{Monospace Bold}}
-    \item \texttt{\textbf{\textit{Monospace Bold Italic}}}
-    \item \alert{accent} part
-  \end{itemize}
+\begin{frame}[fragile]{MinION}
+	\begin{figure}
+		\begin{center}
+			\includegraphics[width=1\textwidth]{imgs/minion.png}%
+		\end{center}
+	\end{figure}
 \end{frame}
 
-\begin{frame}{Blocks}
-  Three different block environments are pre-defined and may be styled with an
-  optional background color.
 
-  \begin{columns}[T,onlytextwidth]
-    \column{0.5\textwidth}
-      \begin{block}{Default}
-        Block content.
-      \end{block}
-
-      \begin{alertblock}{Alert}
-        Block content.
-      \end{alertblock}
-
-      \begin{exampleblock}{Example}
-        Block content.
-      \end{exampleblock}
-
-    \column{0.5\textwidth}
-
-      \metroset{block=fill}
-
-      \begin{block}{Default}
-        Block content.
-      \end{block}
-
-      \begin{alertblock}{Alert}
-        Block content.
-      \end{alertblock}
-
-      \begin{exampleblock}{Example}
-        Block content.
-      \end{exampleblock}
-
-  \end{columns}
-\end{frame}
-\begin{frame}{Math}
-  \begin{equation*}
-    e = \lim_{n\to \infty} \left(1 + \frac{1}{n}\right)^n
-  \end{equation*}
-\end{frame}
-\begin{frame}{Line plots}
-  \begin{figure}
-    \begin{tikzpicture}
-      \begin{axis}[
-        mlineplot,
-        width=0.9\textwidth,
-        height=6cm,
-      ]
-
-        \addplot {sin(deg(x))};
-        \addplot+[samples=100] {sin(deg(2*x))};
-
-      \end{axis}
-    \end{tikzpicture}
-  \end{figure}
-\end{frame}
-\begin{frame}{Bar charts}
-  \begin{figure}
-    \begin{tikzpicture}
-      \begin{axis}[
-        mbarplot,
-        xlabel={Foo},
-        ylabel={Bar},
-        width=0.9\textwidth,
-        height=6cm,
-      ]
-
-      \addplot plot coordinates {(1, 20) (2, 25) (3, 22.4) (4, 12.4)};
-      \addplot plot coordinates {(1, 18) (2, 24) (3, 23.5) (4, 13.2)};
-      \addplot plot coordinates {(1, 10) (2, 19) (3, 25) (4, 15.2)};
-
-      \legend{lorem, ipsum, dolor}
-
-      \end{axis}
-    \end{tikzpicture}
-  \end{figure}
-\end{frame}
-\begin{frame}{Quotes}
-  \begin{quote}
-    Veni, Vidi, Vici
-  \end{quote}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Technology}
+	\begin{figure}
+		\begin{center}
+			\includegraphics[width=1\textwidth]{imgs/nanopore_no_bases.png}%
+		\end{center}
+	\end{figure}
 \end{frame}
 
-{%
-\setbeamertemplate{frame footer}{My custom footer}
-\begin{frame}[fragile]{Frame footer}
-    \themename defines a custom beamer template to add a text to the footer. It can be set via
-    \begin{verbatim}\setbeamertemplate{frame footer}{My custom footer}\end{verbatim}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Basecalling}
+	\begin{figure}
+		\begin{center}
+			\includegraphics<1>[width=0.7\textwidth]{./imgs/basecall/basecall1.png}%
+			\includegraphics<2>[width=0.7\textwidth]{./imgs/basecall/basecall2.png}%			
+			\includegraphics<3>[width=0.7\textwidth]{./imgs/basecall/basecall3.png}%	
+		\end{center}
+	\end{figure}
 \end{frame}
-}
 
-\begin{frame}{References}
-  Some references to showcase [allowframebreaks] \cite{knuth92,ConcreteMath,Simpson,Er01,greenwade93}
-\end{frame}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Basecalling options}
 
-\section{Conclusion}
+\alert{Metrichor}
+\begin{itemize}
+	\item only basecaller for ONT data
+	\item proprietary software
+	\item available as a cloud service
+\end{itemize}
 
-\begin{frame}{Summary}
-
-  Get the source of this theme and the demo presentation from
-
-  \begin{center}\url{github.com/matze/mtheme}\end{center}
-
-  The theme \emph{itself} is licensed under a
-  \href{http://creativecommons.org/licenses/by-sa/4.0/}{Creative Commons
-  Attribution-ShareAlike 4.0 International License}.
-
-  \begin{center}\ccbysa\end{center}
+\alert{Goals}
+\begin{itemize}
+	\item local basecalling
+	\item open-source
+	\item speed, accuracy
+\end{itemize}
 
 \end{frame}
 
-{\setbeamercolor{palette primary}{fg=black, bg=yellow}
-\begin{frame}[standout]
-  Questions?
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Existing solutions}
+	\begin{itemize}
+		\item Third-party: \textit{DeepNano, NanoCall}
+		\item Official: \textit{MinKNOW, Nanonet, Albacore, Scrappie}
+	\end{itemize}
+	\alert{Idea?}
+	\begin{itemize}
+	\item Signal segmentation – event detection
+	\item RNN, HMM (older version of \textit{Metrichor} and \textit{NanoCall})
+	\end{itemize}
+	
+	
+	\begin{figure}
+		\begin{center}
+			\includegraphics<1>[width=0.7\textwidth]{./imgs/segment/segmented_0.png}%
+			\includegraphics<2>[width=0.7\textwidth]{./imgs/segment/segmented_1.png}%			
+			\includegraphics<3>[width=0.7\textwidth]{./imgs/segment/segmented_2.png}%	
+			\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
+			\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
+			\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
+			\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%				
+		\end{center}
+	\end{figure}
 \end{frame}
-}
 
-\appendix
 
-\begin{frame}[fragile]{Backup slides}
-  Sometimes, it is useful to add slides at the end of your presentation to
-  refer to during audience questions.
-
-  The best way to do this is to include the \verb|appendixnumberbeamer|
-  package in your preamble and call \verb|\appendix| before your backup slides.
-
-  \themename will automatically turn off slide numbering and progress bars for
-  slides in the appendix.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Proposed solution}
+	 end2end, CNN, CTC loss\\
+	 speed, paralelization, sequental, eliminate shit \\
+	 
+	 variable length loss function
 \end{frame}
 
-\begin{frame}[allowframebreaks]{References}
-
-  \bibliography{demo}
-  \bibliographystyle{abbrv}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{CTC loss}
+	\alert{Idea}: decode sequence from fixed-width output (softmax over alphabet)
+	\begin{figure}
+		\caption{Path "AAC-T"}
+		\begin{center}
+			\includegraphics<1>[width=0.7\textwidth]{./imgs/ctc/graph_0.png}%
+			\includegraphics<2->[width=0.7\textwidth]{./imgs/ctc/graph_1.png}%	
+		\end{center}
+	\end{figure}
+	\onslide<3->{
+		\begin{equation}
+		\begin{gathered}
+			P(\pi | X) = \prod_{t=1}^{m} s_t(\pi_t)
+		\end{gathered}
+		\end{equation}
+	}
+	
 
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{CTC loss}
+	\alert{Idea}: decode sequence from fixed-width output
+	\onslide<1->{
+		\begin{equation}
+			\begin{gathered}
+			\label{eq:multiple}
+			ACT = \begin{cases}
+			decode(A, A, A, C, T) \\
+			decode(A, A, C, -, T) \\
+			decode(-, A, C, T, T)  \\
+			decode(-, -, A, C, T)  \\
+			decode(A, C, C, C, T)  \\
+			\vdots \\
+			decode(A, C, T, -, -) 
+			\end{cases}
+			\end{gathered}
+		\end{equation}
+	}
+	\onslide<2->{	
+		\begin{equation}
+			\begin{gathered}
+			P(Y | X) = \sum_{\pi \in decode^{-1}(Y)}^{} P(\pi | X)
+			\end{gathered}
+		\end{equation}
+	}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{CTC loss}
+
+Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization of the likelihood of each training sample  which is the same as the minimization of negative log likelihood:
+
+	\begin{equation}
+		\begin{gathered}
+		L(D) = - \sum_{(X,Y)\in D}^{} ln P(Y | X)
+		\end{gathered}
+	\end{equation}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Training}
+		
+	\begin{figure}
+		\begin{center}
+			\includegraphics<1>[width=1\textwidth]{./imgs/train/t1.png}%
+			\includegraphics<2>[width=1\textwidth]{./imgs/train/t2.png}%
+			\includegraphics<3>[width=1\textwidth]{./imgs/train/t3.png}%
+			\includegraphics<4>[width=1\textwidth]{./imgs/train/t4.png}%
+			\includegraphics<5>[width=1\textwidth]{./imgs/train/t5.png}%
+		\end{center}
+	\end{figure}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Model}
+	\begin{itemize}
+		\item Residual CNN, 72 blocks, 2M parameters
+		\item Maxpool every 24 blocks, reduction of dimensionality by factor 8
+	\end{itemize}
+	\begin{figure}
+		\caption{Residual block}
+		\begin{center}
+			\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
+
+		\end{center}
+	\end{figure}
+\end{frame}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+	\begin{itemize}
+		\item Residual CNN, 72 blocks, 2M parameters
+		\item Maxpool every 24 blocks, reduction of dimensionality by factor 8
+	\end{itemize}
+	\begin{figure}
+		\caption{Residual block}
+		\begin{center}
+			\includegraphics[width=0.7\textwidth]{./imgs/model/block_small.png}%
+			
+		\end{center}
+	\end{figure}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Future work}
+	\begin{itemize}
+		\item<1-> Scaled Exponential Linear Units (SELU), Jun 2017
+		\item<3-> Facebook AI Research (FAIR) team: \textit{Convolutional Sequence to Sequence Learning}, May 2017
+		\item<4-> ...
+	\end{itemize}
+	
+	\onslide<2> {
+		\begin{figure}
+			\caption{Implementation}
+			\begin{center}
+				\includegraphics[width=0.7\textwidth]{./imgs/selu_tf.png}%
+				
+			\end{center}
+		\end{figure}
+	}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{End}
+	\vfill
+	\begin{center}  
+		Thank you for your attention!
+	\end{center}
+	
+	\uncover<2->{ 
+		\begin{center}  \large Any questions? \end{center} 
+	} 
+	\vfill
+\end{frame}
 \end{document}
