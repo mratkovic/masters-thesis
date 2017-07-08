@@ -7,7 +7,7 @@
 
 \usepackage{booktabs}
 \usepackage[scale=2]{ccicons}
-
+\usepackage{verbatimbox}
 \usepackage{pgfplots}
 \usepackage{graphicx}
 \setbeamercolor{background canvas}{bg=white}
@@ -48,12 +48,6 @@ Associate Profesor Mile Šikić, PhD}
 %  \setbeamertemplate{section in toc}[sections numbered]
 %  \tableofcontents[hideallsubsections]
 %\end{frame}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% SECTION 
-%\section{Introduction}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,12 +97,14 @@ Associate Profesor Mile Šikić, PhD}
 	\item available as a cloud service
 \end{itemize}
 
-\alert{Goals}
-\begin{itemize}
-	\item local basecalling
-	\item open-source
-	\item speed, accuracy
-\end{itemize}
+	\onslide<2> {
+	\alert{Goals}
+	\begin{itemize}
+		\item local basecalling
+		\item open-source
+		\item speed, accuracy
+	\end{itemize}
+}
 
 \end{frame}
 
@@ -120,35 +116,45 @@ Associate Profesor Mile Šikić, PhD}
 		\item Third-party: \textit{DeepNano, NanoCall}
 		\item Official: \textit{MinKNOW, Nanonet, Albacore, Scrappie}
 	\end{itemize}
-	\alert{Idea?}
-	\begin{itemize}
-	\item Signal segmentation – event detection
-	\item RNN, HMM (older version of \textit{Metrichor} and \textit{NanoCall})
-	\end{itemize}
-	
-	
-	\begin{figure}
-		\begin{center}
-			\includegraphics<1>[width=0.7\textwidth]{./imgs/segment/segmented_0.png}%
-			\includegraphics<2>[width=0.7\textwidth]{./imgs/segment/segmented_1.png}%			
-			\includegraphics<3>[width=0.7\textwidth]{./imgs/segment/segmented_2.png}%	
-			\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
-			\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
-			\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
-			\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%	
-			\caption{Signal segmentation}			
-		\end{center}
-	\end{figure}
+	\onslide<2->{
+		\alert{Idea?}
+		\begin{itemize}
+		\item Signal segmentation – event detection
+		\onslide<10->{\item RNN, HMM (older version of \textit{Metrichor} and \textit{NanoCall})}
+		\end{itemize}
+		
+		\onslide<2->{
+			\begin{figure}
+				\begin{center}
+					\includegraphics<2>[width=0.7\textwidth]{./imgs/segment/segmented_0.png}%
+					\includegraphics<3>[width=0.7\textwidth]{./imgs/segment/segmented_1.png}%			
+					\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_2.png}%	
+					\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
+					\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
+					\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
+					\includegraphics<8->[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%	
+					\caption{Signal segmentation}			
+				\end{center}
+			\end{figure}
+		}
+	}
 \end{frame}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Proposed solution}
-	 end2end, CNN, CTC loss\\
-	 speed, paralelization, sequental, eliminate shit \\
-	 
-	 variable length loss function
+	\vfill
+	\begin{center}  
+		end2end
+	\end{center}
+	
+	\uncover<2->{ 
+		\begin{center}
+			 CNN
+		\end{center} 
+	} 
+	\vfill
 \end{frame}
 
 
@@ -188,7 +194,7 @@ Associate Profesor Mile Šikić, PhD}
 %% FRAME
 \begin{frame}[fragile]{CTC loss}
 	\alert{Idea}: decode sequence from fixed-width output
-	\onslide<1->{
+	\onslide<2->{
 		\begin{equation}
 			\begin{gathered}
 			\label{eq:multiple}
@@ -204,7 +210,7 @@ Associate Profesor Mile Šikić, PhD}
 			\end{gathered}
 		\end{equation}
 	}
-	\onslide<2->{	
+	\onslide<3->{	
 		\begin{equation}
 			\begin{gathered}
 			P(Y | X) = \sum_{\pi \in decode^{-1}(Y)}^{} P(\pi | X)
@@ -224,11 +230,11 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		L(D) = - \sum_{(X,Y)\in D}^{} ln P(Y | X)
 		\end{gathered}
 	\end{equation}
+		
 \end{frame}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
-\begin{frame}[fragile]{Training}
+\begin{frame}[fragile]{Training data}
 		
 	\begin{figure}
 		\begin{center}
@@ -242,6 +248,16 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 	\end{figure}
 \end{frame}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Training data}
+	\begin{figure}
+		\begin{center}
+			\includegraphics[width=0.7\textwidth]{./imgs/preprocess.png}%
+			\caption{Preprocess}
+		\end{center}
+	\end{figure}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
@@ -262,7 +278,9 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 \end{frame}
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 
+\section{Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Results}
@@ -280,7 +298,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		DeepNano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
 		Metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
 		Nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
-		MinCall    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
+		resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
 		\bottomrule
 	\end{tabular}
 \end{table}
@@ -300,7 +318,27 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 
 	
 \end{frame}
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+\begin{table}[htb]
+	\caption{Ecoli R9 basecalled read lengths in base pairs}
+	\label{tbl:ecoli_lens}
+	\centering
+	
+	\begin{tabular}{lccc}
+		\toprule
+		{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
+		\midrule
+		DeepNano   &        5526.5 &  8126.694000 &  7406.554786 \\
+		Metrichor  &        5809.5 &  8933.275000 &  9189.709720 \\
+		Nanonet    &        3286.5 &  4874.406582 &  4803.182344 \\
+		resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
+		\bottomrule
+	\end{tabular}
+\end{table}
+	
+\end{frame}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Results}
@@ -389,6 +427,16 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 
 \end{table}	
 \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Conclusion}
+	\begin{itemize}
+		\item end2end basecaller, open-source, fast and accurate
+		\item R9 data only, R9.4 in progress
+	\end{itemize}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Future work}
