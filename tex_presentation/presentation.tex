@@ -120,19 +120,19 @@ Associate Profesor Mile Šikić, PhD}
 		\alert{Idea?}
 		\begin{itemize}
 		\item Signal segmentation – event detection
-		\onslide<10->{\item RNN, HMM (older version of \textit{Metrichor} and \textit{NanoCall})}
+		\onslide<4->{\item RNN, HMM (older version of \textit{Metrichor} and \textit{NanoCall})}
 		\end{itemize}
 		
 		\onslide<2->{
 			\begin{figure}
 				\begin{center}
 					\includegraphics<2>[width=0.7\textwidth]{./imgs/segment/segmented_0.png}%
-					\includegraphics<3>[width=0.7\textwidth]{./imgs/segment/segmented_1.png}%			
-					\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_2.png}%	
-					\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
-					\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
-					\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
-					\includegraphics<8->[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%	
+%					\includegraphics<3>[width=0.7\textwidth]{./imgs/segment/segmented_1.png}%			
+%					\includegraphics<4>[width=0.7\textwidth]{./imgs/segment/segmented_2.png}%	
+%					\includegraphics<5>[width=0.7\textwidth]{./imgs/segment/segmented_3.png}%			
+%					\includegraphics<6>[width=0.7\textwidth]{./imgs/segment/segmented_4.png}%	
+%					\includegraphics<7>[width=0.7\textwidth]{./imgs/segment/segmented_5.png}%
+					\includegraphics<3->[width=0.7\textwidth]{./imgs/segment/segmented_full.png}%	
 					\caption{Signal segmentation}			
 				\end{center}
 			\end{figure}
@@ -144,25 +144,48 @@ Associate Profesor Mile Šikić, PhD}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Proposed solution}
-	\vfill
 	\begin{center}  
 		end2end
 	\end{center}
-	
-	\uncover<2->{ 
-		\begin{center}
-			 CNN
-		\end{center} 
-	} 
-	\vfill
 \end{frame}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
+\begin{frame}[fragile]{Models}
+	\only<1>{
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=0.8\textwidth]{./imgs/model/rnn.png}%	
+				\caption{RNN}
+			\end{center}
+		\end{figure}	
+	}
+	\addtocounter{figure}{1}
+	\only<2>{
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=0.6\textwidth]{./imgs/model/convolution.png}%	
+				\caption{CNN}
+			\end{center}
+		\end{figure}
+	}
+	\addtocounter{figure}{1}
+	\only<3>{
+		\begin{figure}
+			\begin{center}
+				\includegraphics[width=0.7\textwidth]{./imgs/model/receptive_field.png}%	
+				\caption{Receptive field}
+			\end{center}
+		\end{figure}
+	}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
 \begin{frame}[fragile]{CTC loss}
 	\alert{Idea}: decode sequence from fixed-width output (softmax over alphabet)
-	\only<1>{
+	\only<2>{
 		\begin{figure}
 			\begin{center}
 				\includegraphics[width=0.7\textwidth]{./imgs/ctc/graph_0.png}%	
@@ -171,7 +194,7 @@ Associate Profesor Mile Šikić, PhD}
 		\end{figure}	
 	}
 	\addtocounter{figure}{1}
-	\only<2->{
+	\only<3->{
 		\begin{figure}
 			\begin{center}
 				\includegraphics[width=0.7\textwidth]{./imgs/ctc/graph_1.png}%	
@@ -283,31 +306,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 \section{Results}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
-\begin{frame}[fragile]{Results}
-	\alert{Ground truth?}
-	Per read metrics
-
-\begin{table}[htbp]
-	\caption{Alignment specifications of E. Coli R9 basecalled reads}
-	\label{tbl:ecoli_rates}
-	\centering
-	\begin{tabular}{lcccc}
-		\toprule
-		{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
-		\midrule
-		DeepNano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
-		Metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
-		Nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
-		resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
-		\bottomrule
-	\end{tabular}
-\end{table}
-	
-\end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% FRAME
-\begin{frame}[fragile]{Results}
+\begin{frame}[fragile]{Results}	
 	\begin{figure}[!htb]
 		\begin{center}
 			\includegraphics[width=0.8\textwidth]{imgs/results/kde_cigar.png}
@@ -315,9 +314,30 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 			\label{fg:consensus}
 		\end{center}
 	\end{figure}
+\end{frame}
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAME
+\begin{frame}[fragile]{Results}
+	\begin{table}[htbp]
+		\caption{Alignment specifications of E. Coli R9 basecalled reads}
+		\label{tbl:ecoli_rates}
+		\centering
+		\begin{tabular}{lcccc}
+			\toprule
+			{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
+			\midrule
+			DeepNano   &                  90.254762 &                      6.452852 &                       \textbf{3.274420} &                     11.829965 \\
+			Metrichor  &                  90.560455 &                      5.688105 &                       3.660381 &                      8.328271 \\
+			Nanonet    &                  90.607674 &                      5.608912 &                       3.652791 &                      8.299046 \\
+			resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
+			\bottomrule
+		\end{tabular}
+	\end{table}
 	
 \end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Results}
@@ -362,12 +382,12 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 			\resizebox{\textwidth}{!}{
 				\begin{tabular}{lcccccc}
 					\toprule
-					{} &  \thead{Total called\\\lbrack bp\rbrack} &  \thead{Correctly called\\\lbrack bp\rbrack} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
+					{} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
 					\midrule
-					DeepNano  &                  1510244.0 &                      1493242.0 &          98.8742 &         1.0044 &               0.1214 &              0.9041 \\
-					Metrichor &                  1515893.0 &                      1502588.0 &          99.1223 &         0.7464 &               0.1313 &              0.6300 \\
-					Nanonet   &                  1414237.0 &                      1385515.0 &          97.9691 &         1.5700 &               0.4609 &              1.5158 \\
-					MinCall   &                  1517828.0 &                      1506233.0 &          \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
+					DeepNano  &            98.8742 &         1.0044 &               0.1214 &              0.9041 \\
+					Metrichor &            99.1223 &         0.7464 &               0.1313 &              0.6300 \\
+					Nanonet   &            97.9691 &         1.5700 &               0.4609 &              1.5158 \\
+					resdeep   &     \textbf{99.2361} &         \textbf{0.6474} &               \textbf{0.1165} &             \textbf{ 0.5510 }\\
 					\bottomrule
 				\end{tabular}
 			}
@@ -379,7 +399,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
 \begin{frame}[fragile]{Results}
-\alert{Consensus from de novo assembly} obtained using assembler \emph{ra}\footnote{\url{https://github.com/rvaser/ra}} and compared to the reference using dnadiff present in the Mumer\footnote{\url{https://github.com/garviz/MUMmer}}
+\alert{Consensus from de novo assembly} obtained using assembler \emph{ra}\footnote{\url{https://github.com/rvaser/ra}} and compared to the reference using \textit{dnadiff} present in the Mumer\footnote{\url{https://github.com/garviz/MUMmer}}
 
 \onslide<2->{
 	\begin{table}[htb]
@@ -411,7 +431,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 \begin{frame}[fragile]{Results - basecalling speed}
 \begin{table}[htbp]
 
-	\caption{Base calling speeds measured in \textit{base pairs per second}\footnote{Tested on server with two 8-core Intel(R) Xeon(R) E5-2640 v2 CPUs, NVIDIA Titan X Black GPU, 6GB}}
+	\caption{Base calling speeds measured in \textit{base pairs per second}\footnote{Tested on server with two 8-core Intel(R) Xeon(R) E5-2640 v2 CPUs, NVIDIA Titan Black GPU, 6GB}}
 	\label{tbl:speeds}
 	
 	\centering
@@ -433,7 +453,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 \begin{frame}[fragile]{Conclusion}
 	\begin{itemize}
 		\item end2end basecaller, open-source, fast and accurate
-		\item R9 data only, R9.4 in progress
+		\item \alert{Note:} R9 data only, R9.4 in progress
 	\end{itemize}
 \end{frame}
 
@@ -450,7 +470,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		\begin{figure}
 
 			\begin{center}
-				\includegraphics[width=0.7\textwidth]{./imgs/selu_tf.png}%
+				\includegraphics[width=0.9\textwidth]{./imgs/selu_tf_exp.png}%
 				\caption{SELU implementation}				
 			\end{center}
 		\end{figure}
@@ -459,15 +479,10 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% FRAME
-\begin{frame}[fragile]{End}
-	\vfill
-	\begin{center}  
-		Thank you for your attention!
-	\end{center}
-	
-	\uncover<2->{ 
-		\begin{center}  \large Any questions? \end{center} 
-	} 
-	\vfill
-\end{frame}
+
+\begin{frame}[standout]
+	Questions?
+\end{frame}	
+
+
 \end{document}
