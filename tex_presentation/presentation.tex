@@ -69,7 +69,7 @@ Associate Profesor Mile Šikić, PhD}
 		
 		\begin{center}
 			\includegraphics[width=1\textwidth]{imgs/nanopore_no_bases.png}%
-			\caption{The MinION sequencing device}
+			\caption{DNA strain being pulled through a nanopore}
 		\end{center}
 	\end{figure}
 \end{frame}
@@ -333,7 +333,8 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 	\begin{table}[htbp]
 		\caption{Alignment specifications of E. Coli R9 basecalled reads}
 		\label{tbl:ecoli_rates}
-		\centering
+		\centering \small%
+		\resizebox{0.85\textwidth}{!}{
 		\begin{tabular}{lcccc}
 			\toprule
 			{} &  \thead{Match \% \\(median)} &  \thead{Mismatch \% \\(median)} &  \thead{Insertion \% \\(median)} &  \thead{Deletion \% \\(median)} \\
@@ -344,6 +345,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 			resdeep    &                  \textbf{91.408591} &                     \textbf{ 5.019141} &                       3.477739 &                      \textbf{7.471608 }\\
 			\bottomrule
 		\end{tabular}
+		}
 	\end{table}
 	
 \end{frame}
@@ -355,7 +357,8 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 	\caption{Ecoli R9 basecalled read lengths in base pairs}
 	\label{tbl:ecoli_lens}
 	\centering
-	
+	\centering \small%
+	\resizebox{0.7\textwidth}{!}{
 	\begin{tabular}{lccc}
 		\toprule
 		{} &  \thead{median} &   \thead{mean} &    \thead{std} \\
@@ -366,6 +369,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		resdeep    &        5784.0 &  8990.988989 &  9297.972688 \\
 		\bottomrule
 	\end{tabular}
+	}
 \end{table}
 	
 \end{frame}
@@ -389,7 +393,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 			\label{tbl:spec_ecoli}
 			\centering
 			\centering \small%
-			\resizebox{\textwidth}{!}{
+			\resizebox{0.7\textwidth}{!}{
 				\begin{tabular}{lcccccc}
 					\toprule
 					{} &  \thead{Match\\\%} &  \thead{Snp\\\%} &  \thead{Insertion\\\%} &  \thead{Deletion\\\%} \\
@@ -416,7 +420,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		\caption{Assembly and consensus results for E. Coli}
 		\label{tbl:assembly}
 		\centering \small%
-	   	\resizebox{\textwidth}{!}{
+	   	\resizebox{0.85\textwidth}{!}{
 	   		
 	   		\begin{tabular}{lccc}
 	   			\toprule
@@ -443,8 +447,8 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 
 	\caption{Base calling speeds measured in \textit{base pairs per second}\footnote{Tested on server with two 8-core Intel(R) Xeon(R) E5-2640 v2 CPUs, NVIDIA Titan Black GPU, 6GB}}
 	\label{tbl:speeds}
-	
-	\centering
+	\centering \small%
+	\resizebox{0.7\textwidth}{!}{
 	\begin{tabular}{lccc}
 		\toprule
 		{} &  \thead{resdeep} &  \thead{Nanonet} &  \thead{DeepNano}  \\
@@ -453,7 +457,7 @@ Given the dataset $D = \{(X_i, Y_i)\}$, training objective is the maximization o
 		Speed GPU(bp/s)  & \textbf{ 6571.76 } & 3828.39  & - \\
 		\bottomrule
 	\end{tabular}
-	
+	}
 
 \end{table}	
 \end{frame}
